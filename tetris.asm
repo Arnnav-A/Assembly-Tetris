@@ -10,7 +10,7 @@
 # - Display height in pixels:   256
 # - Base Address for Display:   0x10008000 ($gp)
 ##############################################################################
-
+ 
     .data
 ##############################################################################
 # Immutable Data
@@ -39,54 +39,57 @@ main:
     # Initialize the game
     
     # Print the grid
-    li $t0, 0x181818       # Set the color to daek grey
-    li $t1, 0              # Set the y-coordinate to 0
-    li $t2, 0              # Set the x-coordinate to 0
-    li $s0, 0
-    li $s1, 0
-    li $s2, 0
-    li $s3, 16
-    li $s4, 2
-    li $s5, 0
+    li $t0, 0x181818       # set the color to dark grey
+    li $t1, 0              # set the y-coordinate to 0
+    li $t2, 0              # set the x-coordinate to 0
+    li $s0, 0              # set the current number of iterations of inner_grid_x to 0
+    li $s1, 0              # set the current number of iterations of middle_grid_y to 0
+    li $s2, 0              # set the current number of iterations of outer_grid_z to 0
+    li $s3, 16             # set the maximum number of iterations of inner_grid_x and middle_grid_y to 16
+    li $s4, 2              # set the maximum number of iterations of outer_grid_z to 2
+    li $s5, 0              # set the current starting x-coordinate to 0
     
     outer_grid_z:
-    outer_grid_y:
+    middle_grid_y:
     inner_grid_x:
-        addi $sp, $sp, -4       # move the stack pointer one word
-        sw $t0, 0($sp)          # push the color onto the stack
-        addi $sp, $sp, -4       # move the stack pointer one word
-        sw $t1, 0($sp)          # push the y-coordinate onto the stack
-        addi $sp, $sp, -4       # move the stack pointer one word
-        sw $t2, 0($sp)          # push the x-coordinate onto the stack
-        jal draw_block          # draw the current block
-        addi $sp, $sp, -4
-        lw $t0, 0($sp)          # storing colour back in $t0
-        addi $sp, $sp, -4    
-        lw $t1, 0($sp)          # storing coordinate y back in $t1
-        addi $sp, $sp, -4
-        lw $t2, 0($sp)          # storing coordinate x back in $t2
-        addi $sp, $sp, 12
-        addi $t2, $t2, 16
-        addi $s0, $s0, 1
-        beq $s0, $s3, end_grid_x
-        j inner_grid_x
+        addi $sp, $sp, -4           # move the stack pointer one word
+        sw $t0, 0($sp)              # push the color onto the stack
+        addi $sp, $sp, -4           # move the stack pointer one word
+        sw $t1, 0($sp)              # push the y-coordinate onto the stack
+        addi $sp, $sp, -4           # move the stack pointer one word
+        sw $t2, 0($sp)              # push the x-coordinate onto the stack
+        jal draw_block              # draw the current block of the grid
+        addi $sp, $sp, -4           # move the stack pointer one word
+        lw $t0, 0($sp)              # storing colour back in $t0
+        addi $sp, $sp, -4           # move the stack pointer one word
+        lw $t1, 0($sp)              # storing coordinate y back in $t1
+        addi $sp, $sp, -4           # move the stack pointer one word
+        lw $t2, 0($sp)              # storing coordinate x back in $t2
+        addi $sp, $sp, 12           # move the stack pointer back to the beginning
+        addi $t2, $t2, 16           # move the x-coordinate to the next block of the grid
+        addi $s0, $s0, 1            # add 1 to the number of iterations of inner_grid_x
+        beq $s0, $s3, end_grid_x    # after 8 iterations, end the inner_grid_x loop
+        j inner_grid_x              # go back to the beginning of the inner_grid_x loop
     end_grid_x:
-        addi $t1, $t1, 16
-        addi $s0, $zero, 0
-        add $t2, $zero, $s5
-        addi $s1, $s1, 1 
-        beq $s1, $s3, end_grid_y
-        j outer_grid_y
+        addi $t1, $t1, 16           # move the y-coordinate to the next row (however, skip one row)
+        addi $s0, $zero, 0          # set the number of iterations of inner_grid_x loop back to 0
+        add $t2, $zero, $s5         # set the x-coordinate back to its starting point
+        addi $s1, $s1, 1            # add 1 to the number of iterations of middle_grid_y
+        beq $s1, $s3, end_grid_y    # after 8 iterations, end the middle_grid_y loop
+        j middle_grid_y             # go back to the beggining of the middle_grid_y loop
     end_grid_y:
-        addi $t1, $zero, 8
-        addi $t2, $zero, 8
-        addi $s0, $zero, 0
-        addi $s1, $zero, 0
-        addi $s5, $zero, 8
-        addi $2, $s1, 1
-        beq $s2, $s4, end_grid_z
-        j outer_grid_z
+        addi $t1, $zero, 8          # set y-coordinate to 8
+        addi $t2, $zero, 8          # set the x-coordinate to 8
+        addi $s0, $zero, 0          # set the current number of iterations of inner_grid_x back to 0
+        addi $s1, $zero, 0          # set the current number of iterations of middle_grid_y back to 0
+        addi $s5, $zero, 8          # set the current starting x-coordinate to 8
+        addi $2, $s1, 1             # add 1 to the number of iterations of outer_grid_z
+        beq $s2, $s4, end_grid_z    # after 2 iterations, end the outer_grid_z loop
+        j outer_grid_z              # go back to the beginning of the outer_grid_z loop
     end_grid_z:
+    
+    
+    
 
 game_loop:
 	# 1a. Check if key has been pressed
@@ -113,17 +116,17 @@ draw_block:
     
     # Reading inputs from the stack
     lw $a0, 0($sp)      # storing coordinate x in $a0
-    addi $sp, $sp, 4    
+    addi $sp, $sp, 4    # move the stack pointer one word
     lw $a1, 0($sp)      # storing coordinate y in $a1
-    addi $sp, $sp, 4
+    addi $sp, $sp, 4    # move the stack pointer one word
     lw $a2, 0($sp)      # storing colour in $a2
-    addi $sp, $sp, 4
+    addi $sp, $sp, 4    # move the stack pointer one word
     
     # Setting "local variables"
     lw $t0, ADDR_DSPL       # first, store the initial address of the bitmap
-    addi $t1, $zero, 0
-    addi $t2, $zero, 0
-    addi $t3, $zero, 8
+    addi $t1, $zero, 0      # set $t1 to 0
+    addi $t2, $zero, 0      # set $t2 to 0
+    addi $t3, $zero, 8      # set $t3 to 0
     sll $t4, $a0, 2         # get coordinate x in bytes
     add $t0, $t4, $t0       # add to the current position
     sll $t4, $a1, 10        # get coordinate y in bytes
@@ -146,6 +149,6 @@ end_x:
     beq $t2, $t3, end_y         # ends the outer loop when all 64 pixels were drawn
     j outer_y                   # jumps to the next iteration of the outer loop
 end_y:
-    jr $ra # return to where the function was called
+    jr $ra                      # return to where the function was called
 
 draw_block_end:
