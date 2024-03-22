@@ -41,7 +41,7 @@ main:
     # Print the grid
     li $t0, 0x181818       # set the color to dark grey
     li $t1, 72             # set the y-coordinate to 72
-    li $t2, 40             # set the x-coordinate to 36
+    li $t2, 40             # set the x-coordinate to 40
     li $s0, 0              # set the current number of iterations of inner_grid_x to 0
     li $s1, 0              # set the current number of iterations of middle_grid_y to 0
     li $s2, 0              # set the current number of iterations of outer_grid_z to 0
@@ -76,22 +76,22 @@ main:
         addi $s0, $zero, 0          # set the number of iterations of inner_grid_x loop back to 0
         add $t2, $zero, $s5         # set the x-coordinate back to its starting point
         addi $s1, $s1, 1            # add 1 to the number of iterations of middle_grid_y
-        beq $s1, $s6, end_grid_y    # after 10 iterations, end the middle_grid_y loop
+        beq $s1, $s6, end_grid_y    # after 11/10 iterations, end the middle_grid_y loop
         j middle_grid_y             # go back to the beggining of the middle_grid_y loop
     end_grid_y:
         addi $t1, $zero, 80         # set y-coordinate to 80
-        addi $t2, $zero, 48         # set the x-coordinate to 40
+        addi $t2, $zero, 48         # set the x-coordinate to 48
         addi $s0, $zero, 0          # set the current number of iterations of inner_grid_x back to 0
         addi $s1, $zero, 0          # set the current number of iterations of middle_grid_y back to 0
-        addi $s5, $zero, 48         # set the current starting x-coordinate to 40
-        addi $s6, $zero, 10
+        addi $s5, $zero, 48         # set the current starting x-coordinate to 48
+        addi $s6, $zero, 10         # set the maximum number of iterations of middle_grid_y to 10 
         addi $s2, $s2, 1            # add 1 to the number of iterations of outer_grid_z
         beq $s2, $s4, end_grid_z    # after 2 iterations, end the outer_grid_z loop
         j outer_grid_z              # go back to the beginning of the outer_grid_z loop
     end_grid_z:
     
     # Print the walls
-    li $t0, 0xAB7979       # set the color to dark grey
+    li $t0, 0xAB7979       # set the color to light brown
     li $t1, 72             # set the y-coordinate to 72
     li $t2, 32             # set the x-coordinate to 32
     li $s0, 0              # set the current number of iterations of border_v to 0
@@ -134,7 +134,7 @@ end_n_border_v:
     li $s0, 0              # set the current number of iterations of border_x to 0
     li $s1, 10             # set the maximum_number of iterations of border_x to 10
 
-border_x:
+border_h:
         addi $sp, $sp, -4           # move the stack pointer one word
         sw $t0, 0($sp)              # push the color onto the stack
         addi $sp, $sp, -4           # move the stack pointer one word
@@ -151,9 +151,37 @@ border_x:
         addi $sp, $sp, 12           # move the stack pointer back to the beginning    
         addi $t2, $t2, 8            # move the x-coordinate to the next block of the border
         addi $s0, $s0, 1            # add 1 to the number of iterations of border_v
-        beq $s0, $s1, end_border_x # after 10 iterations, end the border_x loop
-        j border_x                  # go back to the beginning of the border_x loop
-end_border_x:
+        beq $s0, $s1, end_border_h  # after 10 iterations, end the border_x loop
+        j border_h                  # go back to the beginning of the border_x loop
+end_border_h:
+
+    # Print a tetronimo (I-block)
+    li $t0, 0x85A0FF       # set the color to light blue
+    li $t1, 72             # set the y-coordinate to 72
+    li $t2, 64             # set the x-coordinate to 72
+    li $s0, 0              # set the current number of iterations of I to 0
+    li $s1, 4              # set the maximum number of iterations of I to 4
+    
+    I:
+        addi $sp, $sp, -4           # move the stack pointer one word
+        sw $t0, 0($sp)              # push the color onto the stack
+        addi $sp, $sp, -4           # move the stack pointer one word
+        sw $t1, 0($sp)              # push the y-coordinate onto the stack
+        addi $sp, $sp, -4           # move the stack pointer one word
+        sw $t2, 0($sp)              # push the x-coordinate onto the stack
+        jal draw_block              # draw the current block of the tetronimo
+        addi $sp, $sp, -4           # move the stack pointer one word
+        lw $t0, 0($sp)              # storing colour back in $t0
+        addi $sp, $sp, -4           # move the stack pointer one word
+        lw $t1, 0($sp)              # storing coordinate y back in $t1
+        addi $sp, $sp, -4           # move the stack pointer one word
+        lw $t2, 0($sp)              # storing coordinate x back in $t2
+        addi $sp, $sp, 12           # move the stack pointer back to the beginning    
+        addi $t2, $t2, 8            # move the x-coordinate to the next block of the tetronimo
+        addi $s0, $s0, 1            # add 1 to the number of iterations of I
+        beq $s0, $s1, end_I         # after 4 iterations, end the I loop
+        j I                         # go back to the beginning of the I loop
+    end_I:
 
 game_loop:
 	# 1a. Check if key has been pressed
