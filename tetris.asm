@@ -124,8 +124,8 @@ T_piece_270:
 
 # The current piece of the Tetris game
 current_piece:
-    .word I_piece_vertical # stores the address of the current piece
-    .word 0, 0 # stores the coordinates of the top left corner of the current piece
+    .word S_piece_horizontal # stores the address of the current piece
+    .word 72, 80 # stores the coordinates of the top left corner of the current piece
 
 ##############################################################################
 # Code
@@ -256,6 +256,8 @@ border_h:
 end_border_h:
 
 # draw the current piece as the starting block
+li $a0, 1           #if 1, draw current
+jal make_current
 
 game_loop:
 
@@ -272,6 +274,8 @@ game_loop:
     # 1b. Check which key has been pressed
     keyboard_input:
         # erase the current piece
+        li $a0, 0                   # if 0, erase current
+        jal make_current
         lw $t1, 4($t0)              # load the second word of the keyboard
         beq $t1, 0x77, handle_w     # If second word is 0x77, key is 'w'
         beq $t1, 0x61, handle_a     # If second word is 0x61, key is 'a'
@@ -310,11 +314,12 @@ game_loop:
         handle_end:
 
 	# 3. Draw the current piece
-
+	li $a0, 1                          # if 1, draw current
+    jal make_current                   
     # 4. Go back to the game loop
     b game_loop
 
-j draw_block_end
+j end
 
 draw_block: # draw_block(outline, solid, y-coordinate, x-coordinate)
     # - $a0 stores coordinate x
@@ -376,3 +381,105 @@ end_y:
 
 draw_block_end:
 
+j end
+
+make_current: # make_current(erase_or_delete)
+    # - $a0 stores whether the current piece should be erased (0) or drawn (1)
+    # - $s0 stores the current piece
+    # - $s1 stores the address of the current piece 
+    # - $s2 stores the outline colour
+    # - $s3 stores the solid colour
+    # - $s4 stores the inital y-coordinate
+    # - $s5 stores the initial x-coordinate
+    # - $s6 stores the current y-coordinate
+    # - $s7 stores the current x-coordinate
+    
+    # Reading "inputs" from memory
+    lw $s0, current_piece       # store the current piece
+    lw $s1, 0($s0)              # store the address of the current piece
+    beq $a0, 0, erase           # if $a0 is 0, jump to erase
+    lw $s2, 40($s1)             # set the colour (outline) as the colour of the current piece
+    lw $s3, 36($s1)             # set the colour (solid) as the colour of the current piece
+    j end_erase                 # skip erase
+    erase:
+    li $s2, 0x181818            # set the colour (outline) as dark grey
+    li $s3, 0x000000            # set the colour (solid) as black 
+    end_erase:
+    lw $s4, 8($s0)              # store the initial y-coordinate
+    lw $s5, 4($s0)              # store the initial x-coordinate
+    
+    addi $s1, $s1, 4            # sets $s1 to the beginning of the piece's first x-coordinate
+    
+    # Print first block 
+    lw $s6, 4($s1)              
+    add $s6, $s6, $s4            # sets y-coordinate of the first block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the first block   
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+    
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid   
+    
+    # Print second block
+    lw $s6, 4($s1)              
+    add $s6, $s6, $s4            # sets y-coordinate of the second block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the second block   
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+    
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid  
+    
+    # Print third block
+    lw $s6, 4($s1)              
+    add $s6, $s6, $s4            # sets y-coordinate of the third block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the third block   
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+    
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid  
+    
+    # Print forth block
+    lw $s6, 4($s1)              
+    add $s6, $s6, $s4            # sets y-coordinate of the forth block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the forth block   
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+    
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid  
+    
+end_make_current:
+
+j end
+
+end:
