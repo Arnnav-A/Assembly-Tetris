@@ -292,9 +292,6 @@ game_loop:
 
     # 1b. Check which key has been pressed
     keyboard_input:
-        # erase the current piece
-        li $a0, 0                   # if 0, erase current
-        jal make_current
         lw $t1, 4($t0)              # load the second word of the keyboard
         beq $t1, 0x77, handle_w     # If second word is 0x77, key is 'w'
         beq $t1, 0x61, handle_a     # If second word is 0x61, key is 'a'
@@ -304,12 +301,20 @@ game_loop:
 
     # 2a. Check for collisions and update the current piece
         handle_w:
+            # erase the current piece
+            li $a0, 0                  # if 0, erase current
+            jal make_current
+
             lw $t0, current_piece      # load the address of the current piece
             lw $t0, 0($t0)             # load the address of the next rotation
             sw $t0, current_piece      # update the current piece
             b handle_end               # go to the end of the handle block
         
         handle_a:
+            # erase the current piece
+            li $a0, 0                  # if 0, erase current
+            jal make_current
+
             lw $t0, current_piece      # load the address of the current piece
             lw $t1, 4($t0)             # load the x-coordinate of the current piece
             addi $t1, $t1, -8          # move the current piece to the left 
@@ -317,6 +322,10 @@ game_loop:
             b handle_end               # go to the end of the handle block
         
         handle_s:
+            # erase the current piece
+            li $a0, 0                  # if 0, erase current
+            jal make_current
+
             lw $t0, current_piece      # load the address of the current piece
             lw $t1, 8($t0)             # load the y-coordinate of the current piece
             addi $t1, $t1, 8           # move the current piece down
@@ -324,6 +333,10 @@ game_loop:
             b handle_end               # go to the end of the handle block
         
         handle_d:
+            # erase the current piece
+            li $a0, 0                  # if 0, erase current
+            jal make_current
+
             lw $t0, current_piece      # load the address of the current piece
             lw $t1, 4($t0)             # load the x-coordinate of the current piece
             addi $t1, $t1, 8           # move the current piece to the right
@@ -414,7 +427,7 @@ make_current: # make_current(erase_or_delete)
     # - $s7 stores the current x-coordinate
     
     # Reading "inputs" from memory
-    lw $s0, current_piece       # store the current piece
+    la $s0, current_piece       # store the current piece
     lw $s1, 0($s0)              # store the address of the current piece
     beq $a0, 0, erase           # if $a0 is 0, jump to erase
     lw $s2, 40($s1)             # set the colour (outline) as the colour of the current piece
