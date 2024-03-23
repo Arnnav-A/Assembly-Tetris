@@ -107,7 +107,7 @@ J_piece_90:
     .word 0x00DD00DD # stores the outline color of the J piece
 J_piece_180:
     .word J_piece_270 # stores the address of the next rotation of the J piece
-    .word 0, 0, 8, 0, 16, 0, 16, 8 # stores the coordinates of the J piece
+    .word 0, 0, 0, 8, 0, 16, 8, 0 # stores the coordinates of the J piece
     .word 0x00FF00FF # stores the color of the J piece
     .word 0x00DD00DD # stores the outline color of the J piece
 J_piece_270:
@@ -315,7 +315,7 @@ game_loop:
             li $a0, 0                  # if 0, erase current
             jal make_current
 
-            lw $t0, current_piece      # load the address of the current piece
+            la $t0, current_piece      # load the address of the current piece
             lw $t1, 4($t0)             # load the x-coordinate of the current piece
             addi $t1, $t1, -8          # move the current piece to the left 
             sw $t1, 4($t0)             # update the x-coordinate of the current piece
@@ -326,7 +326,7 @@ game_loop:
             li $a0, 0                  # if 0, erase current
             jal make_current
 
-            lw $t0, current_piece      # load the address of the current piece
+            la $t0, current_piece      # load the address of the current piece
             lw $t1, 8($t0)             # load the y-coordinate of the current piece
             addi $t1, $t1, 8           # move the current piece down
             sw $t1, 8($t0)             # update the y-coordinate of the current piece
@@ -337,7 +337,7 @@ game_loop:
             li $a0, 0                  # if 0, erase current
             jal make_current
 
-            lw $t0, current_piece      # load the address of the current piece
+            la $t0, current_piece      # load the address of the current piece
             lw $t1, 4($t0)             # load the x-coordinate of the current piece
             addi $t1, $t1, 8           # move the current piece to the right
             sw $t1, 4($t0)             # update the x-coordinate of the current piece
