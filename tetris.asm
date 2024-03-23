@@ -437,6 +437,8 @@ make_current: # make_current(erase_or_delete)
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
     
     addi $sp, $sp, -4            # move the stack pointer one word
+    sw $ra, 0($sp)               # push the return address onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
     sw $s2, 0($sp)               # push the color (outline) onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s3, 0($sp)               # push the color (solid) onto the stack
@@ -444,7 +446,8 @@ make_current: # make_current(erase_or_delete)
     sw $s6, 0($sp)               # push the y-coordinate onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s7, 0($sp)               # push the x-coordinate onto the stack
-    jal draw_block               # draw the current block of the grid   
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
     
     # Print second block
     lw $s6, 4($s1)              
@@ -452,7 +455,8 @@ make_current: # make_current(erase_or_delete)
     lw $s7, 0($s1)
     add $s7, $s7, $s5            # sets x-coordinate of the second block   
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
-    
+
+    sw $ra, 0($sp)               # push the return address onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s2, 0($sp)               # push the color (outline) onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
@@ -461,7 +465,8 @@ make_current: # make_current(erase_or_delete)
     sw $s6, 0($sp)               # push the y-coordinate onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s7, 0($sp)               # push the x-coordinate onto the stack
-    jal draw_block               # draw the current block of the grid  
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
     
     # Print third block
     lw $s6, 4($s1)              
@@ -469,7 +474,8 @@ make_current: # make_current(erase_or_delete)
     lw $s7, 0($s1)
     add $s7, $s7, $s5            # sets x-coordinate of the third block   
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
-    
+
+    sw $ra, 0($sp)               # push the return address onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s2, 0($sp)               # push the color (outline) onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
@@ -478,7 +484,8 @@ make_current: # make_current(erase_or_delete)
     sw $s6, 0($sp)               # push the y-coordinate onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s7, 0($sp)               # push the x-coordinate onto the stack
-    jal draw_block               # draw the current block of the grid  
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
     
     # Print forth block
     lw $s6, 4($s1)              
@@ -486,7 +493,8 @@ make_current: # make_current(erase_or_delete)
     lw $s7, 0($s1)
     add $s7, $s7, $s5            # sets x-coordinate of the forth block   
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
-    
+
+    sw $ra, 0($sp)               # push the return address onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s2, 0($sp)               # push the color (outline) onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
@@ -495,7 +503,10 @@ make_current: # make_current(erase_or_delete)
     sw $s6, 0($sp)               # push the y-coordinate onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $s7, 0($sp)               # push the x-coordinate onto the stack
-    jal draw_block               # draw the current block of the grid  
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
+
+    jr $ra                       # return to where the function was called 
     
 end_make_current:
 
