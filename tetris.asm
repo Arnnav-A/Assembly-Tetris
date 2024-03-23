@@ -283,15 +283,59 @@ end_border_h:
         j I                         # go back to the beginning of the I loop
     end_I:
 
-game_loop:
-	# 1a. Check if key has been pressed
-    # 1b. Check which key has been pressed
-    # 2a. Check for collisions
-	# 2b. Update locations (paddle, ball)
-	# 3. Draw the screen
-	# 4. Sleep
+# draw the current piece as the starting block
 
-    #5. Go back to 1
+game_loop:
+
+	# 1a. Check if key has been pressed
+    lw $t0, ADDR_KBRD           # load the address of the keyboard
+    lw $t1, 0($t0)              # load the first word of the keyboard
+    beq $t1, 1, keyboard_input  # If first word 1, key is pressed
+    b game_loop                 # If first word 0, key is not pressed
+
+    # 1b. Check which key has been pressed
+    keyboard_input:
+        # erase the current piece
+        lw $t1, 4($t0)              # load the second word of the keyboard
+        beq $t1, 0x77, handle_w     # If second word is 0x77, key is 'w'
+        beq $t1, 0x61, handle_a     # If second word is 0x61, key is 'a'
+        beq $t1, 0x73, handle_s     # If second word is 0x73, key is 's'
+        beq $t1, 0x64, handle_d     # If second word is 0x64, key is 'd'
+        b game_loop                 # Invalid key, go back to the game loop
+
+    # 2a. Check for collisions and update the current piece
+        handle_w:
+            lw $t0, current_piece      # load the address of the current piece
+            lw $t0, 0($t0)             # load the address of the next rotation
+            sw $t0, current_piece      # update the current piece
+            b handle_end               # go to the end of the handle block
+        
+        handle_a:
+            lw $t0, current_piece      # load the address of the current piece
+            lw $t1, 4($t0)             # load the x-coordinate of the current piece
+            addi $t1, $t1, -8          # move the current piece to the left
+            sw $t1, 4($t0)             # update the x-coordinate of the current piece
+            b handle_end               # go to the end of the handle block
+        
+        handle_s:
+            lw $t0, current_piece      # load the address of the current piece
+            lw $t1, 8($t0)             # load the y-coordinate of the current piece
+            addi $t1, $t1, 8           # move the current piece down
+            sw $t1, 8($t0)             # update the y-coordinate of the current piece
+            b handle_end               # go to the end of the handle block
+        
+        handle_d:
+            lw $t0, current_piece      # load the address of the current piece
+            lw $t1, 4($t0)             # load the x-coordinate of the current piece
+            addi $t1, $t1, 8           # move the current piece to the right
+            sw $t1, 4($t0)             # update the x-coordinate of the current piece
+            b handle_end               # go to the end of the handle block
+
+        handle_end:
+
+	# 3. Draw the current piece
+
+    # 4. Go back to the game loop
     b game_loop
 
 j draw_block_end
