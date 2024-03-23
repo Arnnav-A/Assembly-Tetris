@@ -297,6 +297,7 @@ game_loop:
         beq $t1, 0x61, handle_a     # If second word is 0x61, key is 'a'
         beq $t1, 0x73, handle_s     # If second word is 0x73, key is 's'
         beq $t1, 0x64, handle_d     # If second word is 0x64, key is 'd'
+        beq $t1, 0x71, end          # If second word is 0x71, key is 'q'
         b game_loop                 # Invalid key, go back to the game loop
 
     # 2a. Check for collisions and update the current piece
