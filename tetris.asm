@@ -329,8 +329,31 @@ game_loop:
 
             la $t0, current_piece      # load the address of the current piece
             lw $t1, 8($t0)             # load the y-coordinate of the current piece
-            addi $t1, $t1, 8           # move the current piece down
+            addi $t1, $t1, 80           # move the current piece down
             sw $t1, 8($t0)             # update the y-coordinate of the current piece
+
+            # draw the current piece
+            li $a0, 1           #if 1, draw current
+            jal make_current
+
+            # generate new random piece
+            li $v0, 42                 # load 42 into $v0
+            li $a0, 0                  # load 0 into $a0, default random number generator
+            li $a1, 7                  # load 7 into $a1, upper bound of the random number
+            syscall                    # generate a random number 0 through 6 
+            # now $a0 stores the random number
+
+            la $t0, pieces_array       # load the address of the pieces_array
+            sll $t1, $a0, 2            # get the offset of the random piece
+            add $t0, $t0, $t1          # add the offset to the address of the pieces_array
+            lw $t0, 0($t0)             # load the address of the random piece
+            sw $t0, current_piece      # update the current piece
+            la $t0, current_piece      # load the address of the current piece
+            li $t1, 72                 # set $t1 to 72
+            sw $t1, 4($t0)             # set the x-coordinate of the current piece to 72
+            li $t1, 80                 # set $t1 to 80
+            sw $t1, 8($t0)             # set the y-coordinate of the current piece to 80
+
             b handle_end               # go to the end of the handle block
         
         handle_d:
