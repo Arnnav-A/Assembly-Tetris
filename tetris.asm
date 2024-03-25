@@ -39,103 +39,103 @@ O_piece:
     .word O_piece # stores the address of the next rotation of the O piece
     .word 0, 0, 8, 0, 0, 8, 8, 8 # stores the coordinates of the O piece
     .word 0x00FFFF00 # stores the color of the O piece
-    .word 0x00DDDD00 # stores the outline color of the O piece
+    .word 0x00999900 # stores the outline color of the O piece
 
 I_piece_vertical:
     .word I_piece_horizontal # stores the address of the next rotation of the I piece
     .word 0, 0, 0, 8, 0, 16, 0, 24 # stores the coordinates of the I piece
     .word 0x0000FFFF # stores the color of the I piece
-    .word 0x0000DDDD # stores the outline color of the I piece
+    .word 0x00009999 # stores the outline color of the I piece
 I_piece_horizontal:
     .word I_piece_vertical # stores the address of the next rotation of the I piece
     .word 0, 0, 8, 0, 16, 0, 24, 0 # stores the coordinates of the I piece
     .word 0x0000FFFF # stores the color of the I piece
-    .word 0x0000DDDD # stores the outline color of the I piece
+    .word 0x00009999 # stores the outline color of the I piece
 
 S_piece_horizontal:
     .word S_piece_vertical # stores the address of the next rotation of the S piece
     .word 8, 0, 16, 0, 0, 8, 8, 8 # stores the coordinates of the S piece
     .word 0x00FF0000 # stores the color of the S piece
-    .word 0x00DD0000 # stores the outline color of the S piece
+    .word 0x00990000 # stores the outline color of the S piece
 S_piece_vertical:
     .word S_piece_horizontal # stores the address of the next rotation of the S piece
     .word 0, 0, 0, 8, 8, 8, 8, 16 # stores the coordinates of the S piece
     .word 0x00FF0000 # stores the color of the S piece
-    .word 0x00DD0000 # stores the outline color of the S piece
+    .word 0x00990000 # stores the outline color of the S piece
 
 Z_piece_horizontal:
     .word Z_piece_vertical # stores the address of the next rotation of the Z piece
     .word 0, 0, 8, 0, 8, 8, 16, 8 # stores the coordinates of the Z piece
     .word 0x0000FF00 # stores the color of the Z piece
-    .word 0x0000DD00 # stores the outline color of the Z piece
+    .word 0x00009900 # stores the outline color of the Z piece
 Z_piece_vertical:
     .word Z_piece_horizontal # stores the address of the next rotation of the Z piece
     .word 8, 0, 0, 8, 8, 8, 0, 16 # stores the coordinates of the Z piece
     .word 0x0000FF00 # stores the color of the Z piece
-    .word 0x0000DD00 # stores the outline color of the Z piece
+    .word 0x00009900 # stores the outline color of the Z piece
 
 L_piece_default:
     .word L_piece_90 # stores the address of the next rotation of the L piece
     .word 0, 0, 0, 8, 0, 16, 8, 16 # stores the coordinates of the L piece
     .word 0x00FF9933 # stores the color of the L piece
-    .word 0x00DD7722 # stores the outline color of the L piece
+    .word 0x00995522 # stores the outline color of the L piece
 L_piece_90:
     .word L_piece_180 # stores the address of the next rotation of the L piece
     .word 0, 0, 8, 0, 16, 0, 0, 8 # stores the coordinates of the L piece
     .word 0x00FF9933 # stores the color of the L piece
-    .word 0x00DD7722 # stores the outline color of the L piece
+    .word 0x00995522 # stores the outline color of the L piece
 L_piece_180:
     .word L_piece_270 # stores the address of the next rotation of the L piece
     .word 0, 0, 8, 0, 8, 8, 8, 16 # stores the coordinates of the L piece
     .word 0x00FF9933 # stores the color of the L piece
-    .word 0x00DD7722 # stores the outline color of the L piece
+    .word 0x00995522 # stores the outline color of the L piece
 L_piece_270:
     .word L_piece_default # stores the address of the next rotation of the L piece
     .word 0, 8, 8, 8, 16, 8, 16, 0 # stores the coordinates of the L piece
     .word 0x00FF9933 # stores the color of the L piece
-    .word 0x00DD7722 # stores the outline color of the L piece
+    .word 0x00995522 # stores the outline color of the L piece
 
 J_piece_default:
     .word J_piece_90 # stores the address of the next rotation of the J piece
     .word 8, 0, 8, 8, 8, 16, 0, 16 # stores the coordinates of the J piece
     .word 0x00FF00FF # stores the color of the J piece
-    .word 0x00DD00DD # stores the outline color of the J piece
+    .word 0x00990099 # stores the outline color of the J piece
 J_piece_90:
     .word J_piece_180 # stores the address of the next rotation of the J piece
     .word 0, 0, 0, 8, 8, 8, 16, 8 # stores the coordinates of the J piece
     .word 0x00FF00FF # stores the color of the J piece
-    .word 0x00DD00DD # stores the outline color of the J piece
+    .word 0x00990099 # stores the outline color of the J piece
 J_piece_180:
     .word J_piece_270 # stores the address of the next rotation of the J piece
     .word 0, 0, 0, 8, 0, 16, 8, 0 # stores the coordinates of the J piece
     .word 0x00FF00FF # stores the color of the J piece
-    .word 0x00DD00DD # stores the outline color of the J piece
+    .word 0x00990099 # stores the outline color of the J piece
 J_piece_270:
     .word J_piece_default # stores the address of the next rotation of the J piece
     .word 0, 0, 8, 0, 16, 0, 16, 8 # stores the coordinates of the J piece
     .word 0x00FF00FF # stores the color of the J piece
-    .word 0x00DD00DD # stores the outline color of the J piece
+    .word 0x00990099 # stores the outline color of the J piece
 
 T_piece_default:
     .word T_piece_90 # stores the address of the next rotation of the T piece
     .word 0, 0, 8, 0, 16, 0, 8, 8 # stores the coordinates of the T piece
     .word 0x000000FF # stores the color of the T piece
-    .word 0x000000DD # stores the outline color of the T piece
+    .word 0x00000099 # stores the outline color of the T piece
 T_piece_90:
     .word T_piece_180 # stores the address of the next rotation of the T piece
     .word 8, 0, 8, 8, 8, 16, 0, 8 # stores the coordinates of the T piece
     .word 0x000000FF # stores the color of the T piece
-    .word 0x000000DD # stores the outline color of the T piece
+    .word 0x00000099 # stores the outline color of the T piece
 T_piece_180:
     .word T_piece_270 # stores the address of the next rotation of the T piece
     .word 0, 8, 8, 8, 16, 8, 8, 0 # stores the coordinates of the T piece
     .word 0x000000FF # stores the color of the T piece
-    .word 0x000000DD # stores the outline color of the T piece
+    .word 0x00000099 # stores the outline color of the T piece
 T_piece_270:
     .word T_piece_default # stores the address of the next rotation of the T piece
     .word 0, 0, 0, 8, 0, 16, 8, 8 # stores the coordinates of the T piece
     .word 0x000000FF # stores the color of the T piece
-    .word 0x000000DD # stores the outline color of the T piece
+    .word 0x00000099 # stores the outline color of the T piece
 
 ##############################################################################
 # Mutable Data
