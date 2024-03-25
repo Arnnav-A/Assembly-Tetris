@@ -398,7 +398,6 @@ game_loop:
             lw $t1, 4($t0)             # load the x-coordinate of the current piece
             addi $t1, $t1, 8           # move the current piece to the right
             sw $t1, 4($t0)             # update the x-coordinate of the current piece
-            b handle_end               # go to the end of the handle block
 
             # check for collision
             jal handle_collision
