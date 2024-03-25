@@ -146,6 +146,12 @@ current_piece:
     .word S_piece_horizontal # stores the address of the current piece
     .word 72, 80 # stores the coordinates of the top left corner of the current piece
 
+# Array of the grid (including the walls), 0 is empty, 1 is filled
+# for collision detection
+grid_state:
+    .byte 0: 240    # 20 by 12 grid
+    .byte 1: 12     # bottom floor
+
 ##############################################################################
 # Code
 ##############################################################################
@@ -273,6 +279,21 @@ border_h:
         beq $s0, 10, end_border_h  # after 10 iterations, end the border_x loop
         j border_h                  # go back to the beginning of the border_x loop
 end_border_h:
+
+# set left and right wall collision in grid_state
+la $t0, grid_state                  # load the address of the grid_state, first left wall
+li $t2, 20                          # number of iterations, same as height of the walls
+li $t3, 0                           # loop counter
+li $t4, 1                           # set the value of the wall (filled)
+
+wall_collision_loop:
+sb $t4, 0($t0)                      # set the left wall to filled
+sb $t4, 11($t0)                     # set the right wall to filled
+addi $t0, $t0, 12                   # move to the next row
+addi $t3, $t3, 1                    # increment the loop counter
+beq $t3, $t2, wall_collision_end    # end the loop when all rows are filled
+j wall_collision_loop               # go back to the beginning of the loop
+wall_collision_end:
 
 # draw the current piece as the starting block
 li $a0, 1           #if 1, draw current
