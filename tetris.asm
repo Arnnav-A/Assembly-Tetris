@@ -165,15 +165,15 @@ main:
     # Print the grid
     li $t0, 0x181818       # set the color (outline) to black
     li $t1, 0x000000       # set the color (solid) to dark grey
-    li $t2, 80             # set the y-coordinate to 72
+    li $t2, 80             # set the y-coordinate to 80
     li $t3, 40             # set the x-coordinate to 40
     
     li $s0, 0              # set the current number of iterations of inner_grid_x to 0
     li $s1, 0              # set the current number of iterations of middle_grid_y to 0
     li $s2, 0              # set the current number of iterations of outer_grid_z to 0
-    li $s3, 10              # set the maximum number of iterations of inner_grid_x to 5
-    li $s4, 20             # set the maximum number of iterations of middle_grid_y to 11
-    li $s5, 40             # set the current starting x-coordinate to 36
+    li $s3, 10             # set the maximum number of iterations of inner_grid_x to 10
+    li $s4, 20             # set the maximum number of iterations of middle_grid_y to 20
+    li $s5, 40             # set the current starting x-coordinate to 40
     
     outer_grid_z:
     middle_grid_y:
@@ -567,6 +567,98 @@ make_current: # make_current(erase_or_delete)
     jr $ra                       # return to where the function was called 
     
 end_make_current:
+
+j end
+
+handle_collision: # handle_collision() -> collide_or_not
+    # - $a0 stores the current piece
+    # - $s0 stores the address of the current piece
+    # - $s1 stores the new y-coordinate of the piece
+    # - $s2 stores the new x-coordinate of the piece
+    # - $s3 stores the current y-coordinate of a block
+    # - $s4 stores the current x-coordinate of a block
+    # - $s5 stores the collision grid state
+    # - $s6 stores the current value of an address of the collision grid state
+    # - $s7 stores 12 (for multiplication)
+    # - $v0 (return value) is 0 if there are no collisions and 1 if there is at least 1 collision
+    
+   # Reading "inputs" from memory - piece
+    la $a0, current_piece       # store the current piece
+    lw $s0, 0($a0)              # store the address of the current piece
+    lw $s1, 8($a0)              # store the new y-coordinate
+    addi $s1, $s1, -80
+    srl $s1, $s1, 3
+    lw $s2, 4($a0)              # store the new x-coordinate
+    addi $s2, $s2, -32
+    srl $s1, $s1, 3
+    
+    # Reading "inputs" from memory - grid state
+    lw $s5, grid_state           # store the grid_state     
+    
+    addi $s0, $s0, 4             # sets $s0 to the beginning of the piece's first x-coordinate
+    li $v0, 0                    # sets $v0 (return value) to be 0 by default
+    
+    # Checking for first block
+    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
+    lw $s3, 4($s0)              
+    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    lw $s4, 0($s0)
+    srl $s4, $s4, 3              # sets x-coordinate of the first block   
+    mult $s3, $s7
+    mflo $s3    
+    add $s6, $s6, $s4
+    add $s6, $s5, $s3
+    beq $s6, 1, found_collision  
+    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    
+    # Checking for second block
+    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
+    lw $s3, 4($s0)              
+    srl $s3, $s3, 3              # sets y-coordinate of the second block
+    lw $s4, 0($s0)
+    srl $s4, $s4, 3              # sets x-coordinate of the second block   
+    mult $s3, $s7
+    mflo $s3    
+    add $s6, $s6, $s4
+    add $s6, $s5, $s3
+    beq $s6, 1, found_collision  
+    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    
+    # Checking for third block
+    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
+    lw $s3, 4($s0)              
+    srl $s3, $s3, 3              # sets y-coordinate of the third block
+    lw $s4, 0($s0)
+    srl $s4, $s4, 3              # sets x-coordinate of the third block   
+    mult $s3, $s7
+    mflo $s3    
+    add $s6, $s6, $s4
+    add $s6, $s5, $s3
+    beq $s6, 1, found_collision  
+    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    
+    # Checking for forth block
+    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
+    lw $s3, 4($s0)              
+    srl $s3, $s3, 3              # sets y-coordinate of the forth block
+    lw $s4, 0($s0)
+    srl $s4, $s4, 3              # sets x-coordinate of the forth block   
+    mult $s3, $s7
+    mflo $s3    
+    add $s6, $s6, $s4
+    add $s6, $s5, $s3
+    beq $s6, 1, found_collision  
+    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    
+    j collision_checked          # if we get to the end of the checks, no collisions were found, so jump to collision_checked
+    
+    found_collision:
+    addi $v0, $v0, 1            # if a collision is found, set $v0 (return value) to 1
+    collision_checked:
+    
+    jr $ra                       # return to where the function was called 
+
+end_handle_colision:
 
 j end
 
