@@ -378,9 +378,26 @@ game_loop:
             li $a0, 0                  # if 0, erase current
             jal make_current
 
+            # move down until collides
+
+            move_down:
+
+            # check for collision
+            jal handle_collision
+            beq $v0, 1, move_down_end  # if 1, there is collision, go to the end of move down
+
             la $t0, current_piece      # load the address of the current piece
             lw $t1, 8($t0)             # load the y-coordinate of the current piece
-            addi $t1, $t1, 80           # move the current piece down
+            addi $t1, $t1, 8           # move the current piece down
+            sw $t1, 8($t0)             # update the y-coordinate of the current piece
+            b move_down                # go back to the beginning of move down
+
+            move_down_end:
+
+            # move current piece up
+            la $t0, current_piece      # load the address of the current piece
+            lw $t1, 8($t0)             # load the y-coordinate of the current piece
+            addi $t1, $t1, -8          # move the current piece up
             sw $t1, 8($t0)             # update the y-coordinate of the current piece
 
             # draw the current piece
@@ -624,16 +641,17 @@ handle_collision: # handle_collision() -> collide_or_not
     # - $v0 (return value) is 0 if there are no collisions and 1 if there is at least 1 collision
     
    # Reading "inputs" from memory - piece
+    li $s7, 12
     la $a0, current_piece       # store the address of the current piece
     lw $s0, 0($a0)              # store the address of the current piece
     lw $s1, 8($a0)              # store the new y-coordinate
     addi $s1, $s1, -80
     srl $s1, $s1, 3
+    mult $s1, $s7
+    mflo $s1
     lw $s2, 4($a0)              # store the new x-coordinate
     addi $s2, $s2, -32
     srl $s2, $s2, 3
-    
-    li $s7, 12
     
     # Reading "inputs" from memory - grid state
     la $s5, grid_state           # store address of the grid_state     
