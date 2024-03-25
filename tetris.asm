@@ -337,10 +337,22 @@ game_loop:
             li $a0, 0                  # if 0, erase current
             jal make_current
 
+            # move current to the left
             la $t0, current_piece      # load the address of the current piece
             lw $t1, 4($t0)             # load the x-coordinate of the current piece
             addi $t1, $t1, -8          # move the current piece to the left 
             sw $t1, 4($t0)             # update the x-coordinate of the current piece
+
+            # check for collision
+            jal handle_collision
+            beq $v0, 0, handle_end    # if 0, no collision, go to the end of the handle block
+
+            # # move current to the right
+            la $t0, current_piece      # load the address of the current piece
+            lw $t1, 4($t0)             # load the x-coordinate of the current piece
+            addi $t1, $t1, 8           # move the current piece to the left 
+            sw $t1, 4($t0)             # update the x-coordinate of the current piece
+
             b handle_end               # go to the end of the handle block
         
         handle_s:
@@ -593,62 +605,64 @@ handle_collision: # handle_collision() -> collide_or_not
     srl $s1, $s1, 3
     
     # Reading "inputs" from memory - grid state
-    lw $s5, grid_state           # store the grid_state     
+    la $s5, grid_state           # store the grid_state     
     
     addi $s0, $s0, 4             # sets $s0 to the beginning of the piece's first x-coordinate
     li $v0, 0                    # sets $v0 (return value) to be 0 by default
     
     # Checking for first block
-    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
     lw $s3, 4($s0)              
     srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
     srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
-    add $s6, $s6, $s4
-    add $s6, $s5, $s3
+    add $s5, $s5, $s4
+    add $s5, $s5, $s3
+    lb $s6, 0($s5)
     beq $s6, 1, found_collision  
     addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
-    
+
+    la $s5, grid_state           # store the grid_state 
     # Checking for second block
-    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
     lw $s3, 4($s0)              
-    srl $s3, $s3, 3              # sets y-coordinate of the second block
+    srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the second block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
-    add $s6, $s6, $s4
-    add $s6, $s5, $s3
+    add $s5, $s5, $s4
+    add $s5, $s5, $s3
+    lb $s6, 0($s5)
     beq $s6, 1, found_collision  
     addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
-    
+
+    la $s5, grid_state           # store the grid_state 
     # Checking for third block
-    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
     lw $s3, 4($s0)              
-    srl $s3, $s3, 3              # sets y-coordinate of the third block
+    srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the third block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
-    add $s6, $s6, $s4
-    add $s6, $s5, $s3
+    add $s5, $s5, $s4
+    add $s5, $s5, $s3
+    lb $s6, 0($s5)
     beq $s6, 1, found_collision  
     addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
-    
+
+    la $s5, grid_state           # store the grid_state 
     # Checking for forth block
-    lw $s6, 0($s5)               # store coordinate (0,0) of the grid state
     lw $s3, 4($s0)              
-    srl $s3, $s3, 3              # sets y-coordinate of the forth block
+    srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the forth block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
-    add $s6, $s6, $s4
-    add $s6, $s5, $s3
-    beq $s6, 1, found_collision  
-    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    add $s5, $s5, $s4
+    add $s5, $s5, $s3
+    lb $s6, 0($s5)
+    beq $s6, 1, found_collision
     
     j collision_checked          # if we get to the end of the checks, no collisions were found, so jump to collision_checked
     
