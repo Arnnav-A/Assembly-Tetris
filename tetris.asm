@@ -400,6 +400,18 @@ game_loop:
             sw $t1, 4($t0)             # update the x-coordinate of the current piece
             b handle_end               # go to the end of the handle block
 
+            # check for collision
+            jal handle_collision
+            beq $v0, 0, handle_end    # if 0, no collision, go to the end of the handle block
+
+            # move current to the left
+            la $t0, current_piece      # load the address of the current piece
+            lw $t1, 4($t0)             # load the x-coordinate of the current piece
+            addi $t1, $t1, -8          # move the current piece to the left
+            sw $t1, 4($t0)             # update the x-coordinate of the current piece
+            b handle_end               # go to the end of the handle block
+
+
         handle_end:
 
 	# 3. Draw the current piece
