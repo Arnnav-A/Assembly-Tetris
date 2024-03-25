@@ -583,7 +583,7 @@ end_make_current:
 j end
 
 handle_collision: # handle_collision() -> collide_or_not
-    # - $a0 stores the current piece
+    # - $a0 stores the address of the current piece
     # - $s0 stores the address of the current piece
     # - $s1 stores the new y-coordinate of the piece
     # - $s2 stores the new x-coordinate of the piece
@@ -595,17 +595,19 @@ handle_collision: # handle_collision() -> collide_or_not
     # - $v0 (return value) is 0 if there are no collisions and 1 if there is at least 1 collision
     
    # Reading "inputs" from memory - piece
-    la $a0, current_piece       # store the current piece
+    la $a0, current_piece       # store the address of the current piece
     lw $s0, 0($a0)              # store the address of the current piece
     lw $s1, 8($a0)              # store the new y-coordinate
     addi $s1, $s1, -80
     srl $s1, $s1, 3
     lw $s2, 4($a0)              # store the new x-coordinate
     addi $s2, $s2, -32
-    srl $s1, $s1, 3
+    srl $s2, $s2, 3
+    
+    li $s7, 12
     
     # Reading "inputs" from memory - grid state
-    la $s5, grid_state           # store the grid_state     
+    la $s5, grid_state           # store address of the grid_state     
     
     addi $s0, $s0, 4             # sets $s0 to the beginning of the piece's first x-coordinate
     li $v0, 0                    # sets $v0 (return value) to be 0 by default
@@ -617,6 +619,8 @@ handle_collision: # handle_collision() -> collide_or_not
     srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
+    add $s3, $s3, $s1
+    add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     lb $s6, 0($s5)
@@ -631,6 +635,8 @@ handle_collision: # handle_collision() -> collide_or_not
     srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
+    add $s3, $s3, $s1
+    add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     lb $s6, 0($s5)
@@ -645,6 +651,8 @@ handle_collision: # handle_collision() -> collide_or_not
     srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
+    add $s3, $s3, $s1
+    add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     lb $s6, 0($s5)
@@ -659,6 +667,8 @@ handle_collision: # handle_collision() -> collide_or_not
     srl $s4, $s4, 3              # sets x-coordinate of the first block   
     mult $s3, $s7
     mflo $s3    
+    add $s3, $s3, $s1
+    add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     lb $s6, 0($s5)
