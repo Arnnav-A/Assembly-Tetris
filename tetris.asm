@@ -10,7 +10,7 @@
 # - Display height in pixels:   256
 # - Base Address for Display:   0x10008000 ($gp)
 ##############################################################################
- 
+
     .data
 ##############################################################################
 # Immutable Data
@@ -23,7 +23,7 @@ ADDR_DSPL:
 # The address of the keyboard. Don't forget to connect it!
 ADDR_KBRD:
     .word 0xffff0000
-    
+
 # The addresses of possible starting pieces
 pieces_array:
     .word O_piece
@@ -161,20 +161,20 @@ grid_state:
 	# Run the Tetris game.
 main:
     # Initialize the game
-    
+
     # Print the grid
     li $t0, 0x181818       # set the color (outline) to black
     li $t1, 0x000000       # set the color (solid) to dark grey
     li $t2, 80             # set the y-coordinate to 80
     li $t3, 40             # set the x-coordinate to 40
-    
+
     li $s0, 0              # set the current number of iterations of inner_grid_x to 0
     li $s1, 0              # set the current number of iterations of middle_grid_y to 0
     li $s2, 0              # set the current number of iterations of outer_grid_z to 0
     li $s3, 10             # set the maximum number of iterations of inner_grid_x to 10
     li $s4, 20             # set the maximum number of iterations of middle_grid_y to 20
     li $s5, 40             # set the current starting x-coordinate to 40
-    
+
     outer_grid_z:
     middle_grid_y:
     inner_grid_x:
@@ -208,16 +208,16 @@ main:
         beq $s1, $s4, end_grid_y    # after 11/10 iterations, end the middle_grid_y loop
         j middle_grid_y             # go back to the beggining of the middle_grid_y loop
     end_grid_y:
-    
+
     # Print the walls
-    li $t0, 0x93725E       # set the colour (outline) to light brown 
+    li $t0, 0x93725E       # set the colour (outline) to light brown
     li $t1, 0xA48370       # set the colour (solid) to lighter brown
     li $t2, 80             # set the y-coordinate to 80
     li $t3, 32             # set the x-coordinate to 32
     li $s0, 0              # set the current number of iterations of border_v to 0
     li $s1, 0              # set the current number of iterations of n_border_v to 0
     li $s2, 80             # set the current starting y-coordinate to 80
-    
+
 n_border_v:
 border_v:
         addi $sp, $sp, -4           # move the stack pointer one word
@@ -273,7 +273,7 @@ border_h:
         lw $t2, 0($sp)              # storing coordinate y back in $t2
         addi $sp, $sp, -4           # move the stack pointer one word
         lw $t3, 0($sp)              # storing coordinate x back in $t3
-        addi $sp, $sp, 16           # move the stack pointer back to the beginning    
+        addi $sp, $sp, 16           # move the stack pointer back to the beginning
         addi $t3, $t3, 8            # move the x-coordinate to the next block of the border
         addi $s0, $s0, 1            # add 1 to the number of iterations of border_v
         beq $s0, 10, end_border_h  # after 10 iterations, end the border_x loop
@@ -349,7 +349,7 @@ game_loop:
             sw $t0, current_piece      # update the current piece
 
             b handle_end               # go to the end of the handle block
-        
+
         handle_a:
             # erase the current piece
             li $a0, 0                  # if 0, erase current
@@ -358,7 +358,7 @@ game_loop:
             # move current to the left
             la $t0, current_piece      # load the address of the current piece
             lw $t1, 4($t0)             # load the x-coordinate of the current piece
-            addi $t1, $t1, -8          # move the current piece to the left 
+            addi $t1, $t1, -8          # move the current piece to the left
             sw $t1, 4($t0)             # update the x-coordinate of the current piece
 
             # check for collision
@@ -372,7 +372,7 @@ game_loop:
             sw $t1, 4($t0)             # update the x-coordinate of the current piece
 
             b handle_end               # go to the end of the handle block
-        
+
         handle_s:
             # erase the current piece
             li $a0, 0                  # if 0, erase current
@@ -409,7 +409,7 @@ game_loop:
             li $v0, 42                 # load 42 into $v0
             li $a0, 0                  # load 0 into $a0, default random number generator
             li $a1, 7                  # load 7 into $a1, upper bound of the random number
-            syscall                    # generate a random number 0 through 6 
+            syscall                    # generate a random number 0 through 6
             # now $a0 stores the random number
 
             la $t0, pieces_array       # load the address of the pieces_array
@@ -424,7 +424,7 @@ game_loop:
             sw $t1, 8($t0)             # set the y-coordinate of the current piece to 80
 
             b handle_end               # go to the end of the handle block
-        
+
         handle_d:
             # erase the current piece
             li $a0, 0                  # if 0, erase current
@@ -451,7 +451,7 @@ game_loop:
 
 	# 3. Draw the current piece
 	li $a0, 1                          # if 1, draw current
-    jal make_current                   
+    jal make_current
     # 4. Go back to the game loop
     b game_loop
 
@@ -466,8 +466,8 @@ draw_block: # draw_block(outline, solid, y-coordinate, x-coordinate)
     # - $t1 stores the inner loop iteration
     # - $t2 stores the outer loop iteration
     # - $t3 stores the dimensions (both height and width) of the block
-    # - $t4 stores the address of the first pixel in the current row 
-    
+    # - $t4 stores the address of the first pixel in the current row
+
     # Reading inputs from the stack
     lw $a0, 0($sp)      # storing coordinate x in $a0
     addi $sp, $sp, 4    # move the stack pointer one word
@@ -477,7 +477,7 @@ draw_block: # draw_block(outline, solid, y-coordinate, x-coordinate)
     addi $sp, $sp, 4    # move the stack pointer one word
     lw $a3, 0($sp)      # storing colour (outline) in $a3
     addi $sp, $sp, 4    # move the stack pointer one word
-    
+
     # Setting "local variables"
     lw $t0, ADDR_DSPL       # first, store the initial address of the bitmap
     addi $t1, $zero, 0      # set $t1 to 0
@@ -488,7 +488,7 @@ draw_block: # draw_block(outline, solid, y-coordinate, x-coordinate)
     sll $t4, $a1, 10        # get coordinate y in bytes
     add $t0, $t4, $t0       # add to the current position
     addi $t4, $t0, 0        # store the address of the first pixel in the first row
-    
+
     # Drawing block
 outer_y:
 inner_x:
@@ -508,7 +508,7 @@ inner_x:
 end_x:
     addi $t1, $zero, 0          # sets inner loop iteration to 0
     addi $t4, $t4, 1024         # sets t4 the first pixel of the next row
-    addi $t0, $t4, 0            # set the current to the first pixel of the next row 
+    addi $t0, $t4, 0            # set the current to the first pixel of the next row
     addi $t2, $t2, 1            # one more outer loop iteration finished
     beq $t2, $t3, end_y         # ends the outer loop when all 64 pixels were drawn
     j outer_y                   # jumps to the next iteration of the outer loop
@@ -522,14 +522,14 @@ j end
 make_current: # make_current(erase_or_delete)
     # - $a0 stores whether the current piece should be erased (0) or drawn (1)
     # - $s0 stores the current piece
-    # - $s1 stores the address of the current piece 
+    # - $s1 stores the address of the current piece
     # - $s2 stores the outline colour
     # - $s3 stores the solid colour
     # - $s4 stores the inital y-coordinate
     # - $s5 stores the initial x-coordinate
     # - $s6 stores the current y-coordinate
     # - $s7 stores the current x-coordinate
-    
+
     # Reading "inputs" from memory
     la $s0, current_piece       # store the current piece
     lw $s1, 0($s0)              # store the address of the current piece
@@ -539,20 +539,20 @@ make_current: # make_current(erase_or_delete)
     j end_erase                 # skip erase
     erase:
     li $s2, 0x181818            # set the colour (outline) as dark grey
-    li $s3, 0x000000            # set the colour (solid) as black 
+    li $s3, 0x000000            # set the colour (solid) as black
     end_erase:
     lw $s4, 8($s0)              # store the initial y-coordinate
     lw $s5, 4($s0)              # store the initial x-coordinate
-    
+
     addi $s1, $s1, 4            # sets $s1 to the beginning of the piece's first x-coordinate
-    
-    # Print first block 
-    lw $s6, 4($s1)              
+
+    # Print first block
+    lw $s6, 4($s1)
     add $s6, $s6, $s4            # sets y-coordinate of the first block
     lw $s7, 0($s1)
-    add $s7, $s7, $s5            # sets x-coordinate of the first block   
+    add $s7, $s7, $s5            # sets x-coordinate of the first block
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
-    
+
     addi $sp, $sp, -4            # move the stack pointer one word
     sw $ra, 0($sp)               # push the return address onto the stack
     addi $sp, $sp, -4            # move the stack pointer one word
@@ -565,12 +565,12 @@ make_current: # make_current(erase_or_delete)
     sw $s7, 0($sp)               # push the x-coordinate onto the stack
     jal draw_block               # draw the current block of the grid
     lw $ra, 0($sp)               # pop the return address from the stack
-    
+
     # Print second block
-    lw $s6, 4($s1)              
+    lw $s6, 4($s1)
     add $s6, $s6, $s4            # sets y-coordinate of the second block
     lw $s7, 0($s1)
-    add $s7, $s7, $s5            # sets x-coordinate of the second block   
+    add $s7, $s7, $s5            # sets x-coordinate of the second block
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
 
     sw $ra, 0($sp)               # push the return address onto the stack
@@ -584,12 +584,12 @@ make_current: # make_current(erase_or_delete)
     sw $s7, 0($sp)               # push the x-coordinate onto the stack
     jal draw_block               # draw the current block of the grid
     lw $ra, 0($sp)               # pop the return address from the stack
-    
+
     # Print third block
-    lw $s6, 4($s1)              
+    lw $s6, 4($s1)
     add $s6, $s6, $s4            # sets y-coordinate of the third block
     lw $s7, 0($s1)
-    add $s7, $s7, $s5            # sets x-coordinate of the third block   
+    add $s7, $s7, $s5            # sets x-coordinate of the third block
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
 
     sw $ra, 0($sp)               # push the return address onto the stack
@@ -603,12 +603,12 @@ make_current: # make_current(erase_or_delete)
     sw $s7, 0($sp)               # push the x-coordinate onto the stack
     jal draw_block               # draw the current block of the grid
     lw $ra, 0($sp)               # pop the return address from the stack
-    
+
     # Print forth block
-    lw $s6, 4($s1)              
+    lw $s6, 4($s1)
     add $s6, $s6, $s4            # sets y-coordinate of the forth block
     lw $s7, 0($s1)
-    add $s7, $s7, $s5            # sets x-coordinate of the forth block   
+    add $s7, $s7, $s5            # sets x-coordinate of the forth block
     addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
 
     sw $ra, 0($sp)               # push the return address onto the stack
@@ -623,8 +623,8 @@ make_current: # make_current(erase_or_delete)
     jal draw_block               # draw the current block of the grid
     lw $ra, 0($sp)               # pop the return address from the stack
 
-    jr $ra                       # return to where the function was called 
-    
+    jr $ra                       # return to where the function was called
+
 end_make_current:
 
 j end
@@ -640,7 +640,7 @@ handle_collision: # handle_collision() -> collide_or_not
     # - $s6 stores the current value of an address of the collision grid state
     # - $s7 stores 12 (for multiplication)
     # - $v0 (return value) is 0 if there are no collisions and 1 if there is at least 1 collision
-    
+
    # Reading "inputs" from memory - piece
     li $s7, 12
     la $a0, current_piece       # store the address of the current piece
@@ -653,82 +653,82 @@ handle_collision: # handle_collision() -> collide_or_not
     lw $s2, 4($a0)              # store the new x-coordinate
     addi $s2, $s2, -32
     srl $s2, $s2, 3
-    
+
     # Reading "inputs" from memory - grid state
-    la $s5, grid_state           # store address of the grid_state     
-    
+    la $s5, grid_state           # store address of the grid_state
+
     addi $s0, $s0, 4             # sets $s0 to the beginning of the piece's first x-coordinate
     li $v0, 0                    # sets $v0 (return value) to be 0 by default
-    
+
     # Checking for first block
-    lw $s3, 4($s0)              
+    lw $s3, 4($s0)
     srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
     mult $s3, $s7
-    mflo $s3    
-    add $s3, $s3, $s1
-    add $s4, $s4, $s2
-    add $s5, $s5, $s4
-    add $s5, $s5, $s3
-    lb $s6, 0($s5)
-    beq $s6, 1, found_collision  
-    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
-
-    la $s5, grid_state           # store the grid_state 
-    # Checking for second block
-    lw $s3, 4($s0)              
-    srl $s3, $s3, 3              # sets y-coordinate of the first block
-    lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
-    mult $s3, $s7
-    mflo $s3    
-    add $s3, $s3, $s1
-    add $s4, $s4, $s2
-    add $s5, $s5, $s4
-    add $s5, $s5, $s3
-    lb $s6, 0($s5)
-    beq $s6, 1, found_collision  
-    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
-
-    la $s5, grid_state           # store the grid_state 
-    # Checking for third block
-    lw $s3, 4($s0)              
-    srl $s3, $s3, 3              # sets y-coordinate of the first block
-    lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
-    mult $s3, $s7
-    mflo $s3    
-    add $s3, $s3, $s1
-    add $s4, $s4, $s2
-    add $s5, $s5, $s4
-    add $s5, $s5, $s3
-    lb $s6, 0($s5)
-    beq $s6, 1, found_collision  
-    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
-
-    la $s5, grid_state           # store the grid_state 
-    # Checking for forth block
-    lw $s3, 4($s0)              
-    srl $s3, $s3, 3              # sets y-coordinate of the first block
-    lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
-    mult $s3, $s7
-    mflo $s3    
+    mflo $s3
     add $s3, $s3, $s1
     add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     lb $s6, 0($s5)
     beq $s6, 1, found_collision
-    
+    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+
+    la $s5, grid_state           # store the grid_state
+    # Checking for second block
+    lw $s3, 4($s0)
+    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    lw $s4, 0($s0)
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
+    mult $s3, $s7
+    mflo $s3
+    add $s3, $s3, $s1
+    add $s4, $s4, $s2
+    add $s5, $s5, $s4
+    add $s5, $s5, $s3
+    lb $s6, 0($s5)
+    beq $s6, 1, found_collision
+    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+
+    la $s5, grid_state           # store the grid_state
+    # Checking for third block
+    lw $s3, 4($s0)
+    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    lw $s4, 0($s0)
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
+    mult $s3, $s7
+    mflo $s3
+    add $s3, $s3, $s1
+    add $s4, $s4, $s2
+    add $s5, $s5, $s4
+    add $s5, $s5, $s3
+    lb $s6, 0($s5)
+    beq $s6, 1, found_collision
+    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+
+    la $s5, grid_state           # store the grid_state
+    # Checking for forth block
+    lw $s3, 4($s0)
+    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    lw $s4, 0($s0)
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
+    mult $s3, $s7
+    mflo $s3
+    add $s3, $s3, $s1
+    add $s4, $s4, $s2
+    add $s5, $s5, $s4
+    add $s5, $s5, $s3
+    lb $s6, 0($s5)
+    beq $s6, 1, found_collision
+
     j collision_checked          # if we get to the end of the checks, no collisions were found, so jump to collision_checked
-    
+
     found_collision:
     addi $v0, $v0, 1            # if a collision is found, set $v0 (return value) to 1
     collision_checked:
-    
-    jr $ra                       # return to where the function was called 
+
+    jr $ra                       # return to where the function was called
 
 end_handle_colision:
 
@@ -748,72 +748,72 @@ freeze_current:
     lw $s2, 4($a0)              # store the new x-coordinate
     addi $s2, $s2, -32
     srl $s2, $s2, 3
-    
+
     # Reading "inputs" from memory - grid state
-    la $s5, grid_state           # store address of the grid_state     
-    
+    la $s5, grid_state           # store address of the grid_state
+
     addi $s0, $s0, 4             # sets $s0 to the beginning of the piece's first x-coordinate
     li $v0, 0                    # sets $v0 (return value) to be 0 by default
-    
+
     # Checking for first block
-    lw $s3, 4($s0)              
+    lw $s3, 4($s0)
     srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
     mult $s3, $s7
-    mflo $s3    
+    mflo $s3
     add $s3, $s3, $s1
     add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
-    sb $s6, 0($s5)   
+    sb $s6, 0($s5)
     addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
 
-    la $s5, grid_state           # store the grid_state 
+    la $s5, grid_state           # store the grid_state
     # Checking for second block
-    lw $s3, 4($s0)              
+    lw $s3, 4($s0)
     srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
     mult $s3, $s7
-    mflo $s3    
+    mflo $s3
     add $s3, $s3, $s1
     add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
-    sb $s6, 0($s5)  
+    sb $s6, 0($s5)
     addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
 
-    la $s5, grid_state           # store the grid_state 
+    la $s5, grid_state           # store the grid_state
     # Checking for third block
-    lw $s3, 4($s0)              
+    lw $s3, 4($s0)
     srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
     mult $s3, $s7
-    mflo $s3    
+    mflo $s3
     add $s3, $s3, $s1
     add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
-    sb $s6, 0($s5) 
+    sb $s6, 0($s5)
     addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
 
-    la $s5, grid_state           # store the grid_state 
+    la $s5, grid_state           # store the grid_state
     # Checking for forth block
-    lw $s3, 4($s0)              
+    lw $s3, 4($s0)
     srl $s3, $s3, 3              # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block   
+    srl $s4, $s4, 3              # sets x-coordinate of the first block
     mult $s3, $s7
-    mflo $s3    
+    mflo $s3
     add $s3, $s3, $s1
     add $s4, $s4, $s2
     add $s5, $s5, $s4
     add $s5, $s5, $s3
-    sb $s6, 0($s5) 
-    
-    jr $ra                       # return to where the function was called 
+    sb $s6, 0($s5)
+
+    jr $ra                       # return to where the function was called
 
 end_freeze_current:
 
