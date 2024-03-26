@@ -196,12 +196,12 @@ main:
         addi $sp, $sp, -4           # move the stack pointer one word
         lw $t3, 0($sp)              # storing coordinate x back in $t3
         addi $sp, $sp, 16           # move the stack pointer back to the beginning
-        addi $t3, $t3, 8           # move the x-coordinate to the next block of the grid
+        addi $t3, $t3, 8            # move the x-coordinate to the next block of the grid
         addi $s0, $s0, 1            # add 1 to the number of iterations of inner_grid_x
         beq $s0, $s3, end_grid_x    # after 5 iterations, end the inner_grid_x loop
         j inner_grid_x              # go back to the beginning of the inner_grid_x loop
     end_grid_x:
-        addi $t2, $t2, 8           # move the y-coordinate to the next row (however, skip one row)
+        addi $t2, $t2, 8            # move the y-coordinate to the next row (however, skip one row)
         addi $s0, $zero, 0          # set the number of iterations of inner_grid_x loop back to 0
         add $t3, $zero, $s5         # set the x-coordinate back to its starting point
         addi $s1, $s1, 1            # add 1 to the number of iterations of middle_grid_y
@@ -276,7 +276,7 @@ border_h:
         addi $sp, $sp, 16           # move the stack pointer back to the beginning
         addi $t3, $t3, 8            # move the x-coordinate to the next block of the border
         addi $s0, $s0, 1            # add 1 to the number of iterations of border_v
-        beq $s0, 10, end_border_h  # after 10 iterations, end the border_x loop
+        beq $s0, 10, end_border_h   # after 10 iterations, end the border_x loop
         j border_h                  # go back to the beginning of the border_x loop
 end_border_h:
 
@@ -296,7 +296,7 @@ j wall_collision_loop               # go back to the beginning of the loop
 wall_collision_end:
 
 # draw the current piece as the starting block
-li $a0, 1           #if 1, draw current
+li $a0, 1           # if 1, draw current
 jal make_current
 
 game_loop:
@@ -402,7 +402,7 @@ game_loop:
 
             jal freeze_current         # update grid state
             # draw the current piece
-            li $a0, 1           #if 1, draw current
+            li $a0, 1           # if 1, draw current
             jal make_current
 
             # generate new random piece
@@ -437,7 +437,7 @@ game_loop:
 
             # check for collision
             jal handle_collision
-            beq $v0, 0, handle_end    # if 0, no collision, go to the end of the handle block
+            beq $v0, 0, handle_end     # if 0, no collision, go to the end of the handle block
 
             # move current to the left
             la $t0, current_piece      # load the address of the current piece
@@ -725,7 +725,7 @@ handle_collision: # handle_collision() -> collide_or_not
     j collision_checked          # if we get to the end of the checks, no collisions were found, so jump to collision_checked
 
     found_collision:
-    addi $v0, $v0, 1            # if a collision is found, set $v0 (return value) to 1
+    addi $v0, $v0, 1             # if a collision is found, set $v0 (return value) to 1
     collision_checked:
 
     jr $ra                       # return to where the function was called
@@ -750,16 +750,16 @@ freeze_current:
     srl $s2, $s2, 3
 
     # Reading "inputs" from memory - grid state
-    la $s5, grid_state           # store address of the grid_state
+    la $s5, grid_state          # store address of the grid_state
 
-    addi $s0, $s0, 4             # sets $s0 to the beginning of the piece's first x-coordinate
-    li $v0, 0                    # sets $v0 (return value) to be 0 by default
+    addi $s0, $s0, 4            # sets $s0 to the beginning of the piece's first x-coordinate
+    li $v0, 0                   # sets $v0 (return value) to be 0 by default
 
     # Checking for first block
     lw $s3, 4($s0)
-    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    srl $s3, $s3, 3             # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block
+    srl $s4, $s4, 3             # sets x-coordinate of the first block
     mult $s3, $s7
     mflo $s3
     add $s3, $s3, $s1
@@ -767,14 +767,14 @@ freeze_current:
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     sb $s6, 0($s5)
-    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    addi $s0, $s0, 8            # moves $s0 to the next x-coordinate
 
-    la $s5, grid_state           # store the grid_state
+    la $s5, grid_state          # store the grid_state
     # Checking for second block
     lw $s3, 4($s0)
-    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    srl $s3, $s3, 3             # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block
+    srl $s4, $s4, 3             # sets x-coordinate of the first block
     mult $s3, $s7
     mflo $s3
     add $s3, $s3, $s1
@@ -782,14 +782,14 @@ freeze_current:
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     sb $s6, 0($s5)
-    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    addi $s0, $s0, 8            # moves $s0 to the next x-coordinate
 
-    la $s5, grid_state           # store the grid_state
+    la $s5, grid_state          # store the grid_state
     # Checking for third block
     lw $s3, 4($s0)
-    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    srl $s3, $s3, 3             # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block
+    srl $s4, $s4, 3             # sets x-coordinate of the first block
     mult $s3, $s7
     mflo $s3
     add $s3, $s3, $s1
@@ -797,14 +797,14 @@ freeze_current:
     add $s5, $s5, $s4
     add $s5, $s5, $s3
     sb $s6, 0($s5)
-    addi $s0, $s0, 8             # moves $s0 to the next x-coordinate
+    addi $s0, $s0, 8            # moves $s0 to the next x-coordinate
 
-    la $s5, grid_state           # store the grid_state
+    la $s5, grid_state          # store the grid_state
     # Checking for forth block
     lw $s3, 4($s0)
-    srl $s3, $s3, 3              # sets y-coordinate of the first block
+    srl $s3, $s3, 3             # sets y-coordinate of the first block
     lw $s4, 0($s0)
-    srl $s4, $s4, 3              # sets x-coordinate of the first block
+    srl $s4, $s4, 3             # sets x-coordinate of the first block
     mult $s3, $s7
     mflo $s3
     add $s3, $s3, $s1
@@ -813,7 +813,7 @@ freeze_current:
     add $s5, $s5, $s3
     sb $s6, 0($s5)
 
-    jr $ra                       # return to where the function was called
+    jr $ra                      # return to where the function was called
 
 end_freeze_current:
 
