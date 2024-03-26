@@ -319,6 +319,7 @@ game_loop:
         beq $t1, 0x73, handle_s     # If second word is 0x73, key is 's'
         beq $t1, 0x64, handle_d     # If second word is 0x64, key is 'd'
         beq $t1, 0x71, end          # If second word is 0x71, key is 'q'
+        beq $t1, 0x70, pause_loop   # If second word is 0x70, key is 'p'
         b game_loop                 # Invalid key, go back to the game loop
 
     # 2a. Check for collisions and update the current piece
@@ -456,6 +457,21 @@ game_loop:
     b game_loop
 
 j end
+
+# pause loop that listens for next press of 'p'
+pause_loop:
+
+    # delay the pause loop by 10 ms
+    li $v0, 32
+    li $a0, 10
+    syscall
+
+    lw $t0, ADDR_KBRD           # load the address of the keyboard
+    lw $t1, 0($t0)              # load the first word of the keyboard
+    beq $t1, 0, pause_loop      # If first word 0, key is not pressed
+    lw $t1, 4($t0)              # load the second word of the keyboard
+    beq $t1, 0x70, game_loop    # If second word is 0x70, key is 'p', go back to game loop
+    b pause_loop                # If second word is not 0x70, key is not 'p', go back to pause loop
 
 draw_block: # draw_block(outline, solid, y-coordinate, x-coordinate)
     # - $a0 stores coordinate x
