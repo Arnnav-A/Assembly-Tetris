@@ -334,7 +334,7 @@ game_loop:
 
             # check for collision
             jal handle_collision
-            beq $v0, 0, handle_end    # if 0, no collision, go to the end of the handle block
+            beq $v0, 0, rotate_sound    # if 0, no collision, go to the end of the handle block
 
             # rotate current 3 times to go back to normal
             lw $t0, current_piece      # load the address of the current piece
@@ -348,6 +348,15 @@ game_loop:
             lw $t0, current_piece      # load the address of the current piece
             lw $t0, 0($t0)             # load the address of the next rotation
             sw $t0, current_piece      # update the current piece
+
+            # if rotated successfully, play sound effect
+            rotate_sound:
+            li $a0, 80                 # pitch
+            li $a1, 500                # duration
+            li $a2, 0                  # instrument
+            li $a3, 80                 # volume
+            li $v0, 31                 # async sound
+            syscall
 
             b handle_end               # go to the end of the handle block
 
@@ -401,6 +410,15 @@ game_loop:
             addi $t1, $t1, -8          # move the current piece up
             sw $t1, 8($t0)             # update the y-coordinate of the current piece
 
+            # if moved down successfully, play sound effect
+            li $a0, 40                 # pitch
+            li $a1, 250                # duration
+            li $a2, 25                 # instrument
+            li $a3, 80                 # volume
+            li $v0, 31                 # async sound
+            syscall
+
+            # update the grid state
             jal freeze_current         # update grid state
             # draw the current piece
             li $a0, 1           # if 1, draw current
