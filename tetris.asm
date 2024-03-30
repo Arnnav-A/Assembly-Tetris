@@ -1372,8 +1372,8 @@ retry_loop:
     b retry_loop                # If second word is not 0x72, key is not 'r', go back to retry loop
     
 end_retry:
-li $a0, 0
 jal clear_grid
+li $a0, 0
 jal clear
 b main
 
