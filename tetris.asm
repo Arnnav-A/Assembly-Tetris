@@ -318,8 +318,8 @@ game_loop:
         beq $t1, 0x61, handle_a     # If second word is 0x61, key is 'a'
         beq $t1, 0x73, handle_s     # If second word is 0x73, key is 's'
         beq $t1, 0x64, handle_d     # If second word is 0x64, key is 'd'
-        beq $t1, 0x71, end          # If second word is 0x71, key is 'q'
-        beq $t1, 0x70, pause_loop   # If second word is 0x70, key is 'p'
+        beq $t1, 0x71, game_over    # If second word is 0x71, key is 'q'
+        beq $t1, 0x70, pause        # If second word is 0x70, key is 'p'
         b game_loop                 # Invalid key, go back to the game loop
 
     # 2a. Check for collisions and update the current piece
@@ -476,6 +476,118 @@ game_loop:
 
 j end
 
+pause:
+
+li $a3, 0xFFFFFF
+# Draw P
+li $a0, 143
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 143
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 149
+li $a1, 217
+li $a2, 8
+jal draw_vertical
+li $a0, 143
+li $a1, 223
+li $a2, 8
+jal draw_horizontal
+
+# Draw A
+li $a0, 155
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 155
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 161
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 155
+li $a1, 223
+li $a2, 8
+jal draw_horizontal
+
+# Print U
+li $a0, 168
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 168
+li $a1, 231
+li $a2, 8
+jal draw_horizontal
+li $a0, 174
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+
+# Print S
+li $a0, 181
+li $a1, 217
+li $a2, 8
+jal draw_vertical
+li $a0, 181
+li $a1, 231
+li $a2, 8
+jal draw_horizontal
+li $a0, 187
+li $a1, 225
+li $a2, 8
+jal draw_vertical
+li $a0, 181
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 181
+li $a1, 224
+li $a2, 8
+jal draw_horizontal
+
+# Print E
+li $a0, 193
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 193
+li $a1, 231
+li $a2, 8
+jal draw_horizontal
+li $a0, 193
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 193
+li $a1, 224
+li $a2, 8
+jal draw_horizontal
+
+# Print D
+li $a0, 205
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 205
+li $a1, 231
+li $a2, 6
+jal draw_horizontal
+li $a0, 205
+li $a1, 217
+li $a2, 6
+jal draw_horizontal
+li $a0, 211
+li $a1, 219
+li $a2, 12
+jal draw_vertical
+
+
 # pause loop that listens for next press of 'p'
 pause_loop:
 
@@ -488,8 +600,14 @@ pause_loop:
     lw $t1, 0($t0)              # load the first word of the keyboard
     beq $t1, 0, pause_loop      # If first word 0, key is not pressed
     lw $t1, 4($t0)              # load the second word of the keyboard
-    beq $t1, 0x70, game_loop    # If second word is 0x70, key is 'p', go back to game loop
+    beq $t1, 0x70, end_pause    # If second word is 0x70, key is 'p', go back to game loop
     b pause_loop                # If second word is not 0x70, key is not 'p', go back to pause loop
+    
+end_pause:
+
+li $a0, 1
+jal clear
+b game_loop
 
 draw_block: # draw_block(outline, solid, y-coordinate, x-coordinate)
     # - $a0 stores coordinate x
@@ -850,5 +968,349 @@ freeze_current:
     jr $ra                      # return to where the function was called
 
 end_freeze_current:
+
+j end
+
+draw_vertical:
+    
+    lw $s2, ADDR_DSPL
+    li $s1, 0
+    sll $a0, $a0, 2
+    sll $a1, $a1, 10
+    add $s2, $s2, $a0
+    add $s2, $s2, $a1
+    
+    print_vertical:
+    sw $a3, 0($s2)
+    sw $a3, 4($s2)
+    addi $s1, $s1, 1
+    beq $s1, $a2, end_print_vertical
+    addi $s2, $s2, 1024
+    j print_vertical
+    end_print_vertical:
+    
+    jr $ra
+    
+end_draw_vertical:
+
+j end
+
+draw_horizontal:
+
+    lw $s2, ADDR_DSPL
+    li $s1, 0
+    sll $a0, $a0, 2
+    sll $a1, $a1, 10
+    add $s2, $s2, $a0
+    add $s2, $s2, $a1
+    
+    print_horizontal:
+    sw $a3, 0($s2)
+    sw $a3, 1024($s2)
+    addi $s1, $s1, 1
+    beq $s1, $a2, end_print_horizontal
+    addi $s2, $s2, 4
+    j print_horizontal
+    end_print_horizontal:
+    
+    jr $ra
+
+end_draw_horizontal:
+
+j end
+
+clear:
+
+li $s0, 0
+lw $s1, ADDR_DSPL
+li $s2, 0x000000
+li $s3, 65536
+beq $a0, 0, clear_all
+beq $a0, 1, clear_pause
+
+clear_all:
+sw $s2, 0($s1)
+addi $s1, $s1, 4
+addi $s0, $s0, 1
+beq $s0, $s3, go_back_clear
+j clear_all
+
+clear_pause: 
+sw $ra, 0($sp)               # push the return address onto the stack
+li $a3, 0x000000
+# Draw P
+li $a0, 143
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 143
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 149
+li $a1, 217
+li $a2, 8
+jal draw_vertical
+li $a0, 143
+li $a1, 223
+li $a2, 8
+jal draw_horizontal
+
+# Draw A
+li $a0, 155
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 155
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 161
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 155
+li $a1, 223
+li $a2, 8
+jal draw_horizontal
+
+# Print U
+li $a0, 168
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 168
+li $a1, 231
+li $a2, 8
+jal draw_horizontal
+li $a0, 174
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+
+# Print S
+li $a0, 181
+li $a1, 217
+li $a2, 8
+jal draw_vertical
+li $a0, 181
+li $a1, 231
+li $a2, 8
+jal draw_horizontal
+li $a0, 187
+li $a1, 225
+li $a2, 8
+jal draw_vertical
+li $a0, 181
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 181
+li $a1, 224
+li $a2, 8
+jal draw_horizontal
+
+# Print E
+li $a0, 193
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 193
+li $a1, 231
+li $a2, 8
+jal draw_horizontal
+li $a0, 193
+li $a1, 217
+li $a2, 8
+jal draw_horizontal
+li $a0, 193
+li $a1, 224
+li $a2, 8
+jal draw_horizontal
+
+# Print D
+li $a0, 205
+li $a1, 217
+li $a2, 16
+jal draw_vertical
+li $a0, 205
+li $a1, 231
+li $a2, 6
+jal draw_horizontal
+li $a0, 205
+li $a1, 217
+li $a2, 6
+jal draw_horizontal
+li $a0, 211
+li $a1, 219
+li $a2, 12
+jal draw_vertical
+lw $ra, 0($sp)               # pop the return address from the stack
+
+go_back_clear:
+jr $ra
+
+end_clear:
+
+j end
+
+game_over:
+
+li $a0, 0
+jal clear
+
+li $a3, 0xFFFFFF
+# Print G
+li $a0, 20
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+li $a0, 20
+li $a1, 142
+li $a2, 16
+jal draw_horizontal
+li $a0, 20
+li $a1, 112
+li $a2, 16
+jal draw_horizontal
+li $a0, 34
+li $a1, 128
+li $a2, 16
+jal draw_vertical
+
+# Print A
+li $a0, 45
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+li $a0, 45
+li $a1, 112
+li $a2, 16
+jal draw_horizontal
+li $a0, 45
+li $a1, 128
+li $a2, 16
+jal draw_horizontal
+li $a0, 59
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+
+# Draw M
+li $a0, 71
+li $a1, 114
+li $a2, 30
+jal draw_vertical
+li $a0, 73
+li $a1, 112
+li $a2, 12
+jal draw_horizontal
+li $a0, 78
+li $a1, 112
+li $a2, 16
+jal draw_vertical
+li $a0, 85
+li $a1, 114
+li $a2, 30
+jal draw_vertical
+
+# Draw E
+li $a0, 97
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+li $a0, 97
+li $a1, 112
+li $a2, 16
+jal draw_horizontal
+li $a0, 97
+li $a1, 128
+li $a2, 16
+jal draw_horizontal
+li $a0, 97
+li $a1, 142
+li $a2, 16
+jal draw_horizontal
+
+# Print O
+li $a0, 140
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+li $a0, 140
+li $a1, 112
+li $a2, 16
+jal draw_horizontal
+li $a0, 156
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+li $a0, 140
+li $a1, 142
+li $a2, 16
+jal draw_horizontal
+
+# Print V
+li $a0, 168
+li $a1, 112
+li $a2, 30
+jal draw_vertical
+li $a0, 184
+li $a1, 112
+li $a2, 30
+jal draw_vertical
+li $a0, 170
+li $a1, 142
+li $a2, 14
+jal draw_horizontal
+
+# Print E
+li $a0, 196
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+li $a0, 196
+li $a1, 112
+li $a2, 16
+jal draw_horizontal
+li $a0, 196
+li $a1, 128
+li $a2, 16
+jal draw_horizontal
+li $a0, 196
+li $a1, 142
+li $a2, 16
+jal draw_horizontal
+
+# Print R
+li $a0, 220
+li $a1, 112
+li $a2, 32
+jal draw_vertical
+li $a0, 220
+li $a1, 112
+li $a2, 16
+jal draw_horizontal
+
+retry_loop:
+
+    # delay the retry loop by 10 ms
+    li $v0, 32
+    li $a0, 10
+    syscall
+
+    lw $t0, ADDR_KBRD           # load the address of the keyboard
+    lw $t1, 0($t0)              # load the first word of the keyboard
+    beq $t1, 0, retry_loop      # If first word 0, key is not pressed
+    lw $t1, 4($t0)              # load the second word of the keyboard
+    beq $t1, 0x72, end_retry    # If second word is 0x72, key is 'r', go back to game loop
+    b retry_loop                # If second word is not 0x72, key is not 'r', go back to retry loop
+    
+end_retry:
+li $a0, 0
+jal clear
+b main
+
+end_game_over:
 
 end:
