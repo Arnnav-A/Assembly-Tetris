@@ -145,6 +145,8 @@ T_piece_270:
 current_piece:
     .word S_piece_horizontal # stores the address of the current piece
     .word 72, 80 # stores the coordinates of the top left corner of the current piece
+next_piece:
+    .word T_piece_default # stores the address of the next piece
 
 # Array of the grid (including the walls), 0 is empty, 1 is filled
 # for collision detection
@@ -432,6 +434,10 @@ game_loop:
             li $a0, 1           # if 1, draw current
             jal make_current
 
+            # make current piece the same as the next piece
+            lw $t0, next_piece          # load the address of the next piece
+            sw $t0, current_piece       # update the current piece
+
             # generate new random piece
             li $v0, 42                 # load 42 into $v0
             li $a0, 0                  # load 0 into $a0, default random number generator
@@ -443,7 +449,7 @@ game_loop:
             sll $t1, $a0, 2            # get the offset of the random piece
             add $t0, $t0, $t1          # add the offset to the address of the pieces_array
             lw $t0, 0($t0)             # load the address of the random piece
-            sw $t0, current_piece      # update the current piece
+            sw $t0, next_piece         # update the next piece
             la $t0, current_piece      # load the address of the current piece
             li $t1, 72                 # set $t1 to 72
             sw $t1, 4($t0)             # set the x-coordinate of the current piece to 72
