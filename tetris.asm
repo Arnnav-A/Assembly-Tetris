@@ -1154,6 +1154,28 @@ end_clear:
 
 j end
 
+clear_grid:
+    # Reading "inputs" from memory - grid state
+    la $a0, grid_state           # store address of the grid_state
+    
+    li $a1, 0
+    li $a2, 0
+
+    clear_grid_loop:
+    sb $a2, 0($a0)
+    addi $a1, $a1, 1
+    addi $a0, $a0, 1
+    beq $a1, 240, end_clear_grid_loop
+    j clear_grid_loop
+    end_clear_grid_loop:
+    
+    jr $ra
+
+
+end_clear_grid:
+
+j end
+
 game_over:
 
 li $a0, 0
@@ -1308,6 +1330,7 @@ retry_loop:
     
 end_retry:
 li $a0, 0
+jal clear_grid
 jal clear
 b main
 
