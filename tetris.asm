@@ -471,6 +471,18 @@ game_loop:
 	# 3. Draw the current piece
 	li $a0, 1                          # if 1, draw current
     jal make_current
+
+    # if current piece collides with the grid, game over
+    jal handle_collision
+    beq $v0, 0, check_game_over_end     # if 0, no collision, go to the end of the handle block
+
+    li $v0, 32
+    li $a0, 1000
+    syscall                    # delay game over by 1000 ms, to show collision
+    j game_over                # if 1, there is collision, go to game over
+
+    check_game_over_end:
+
     # 4. Go back to the game loop
     b game_loop
 
