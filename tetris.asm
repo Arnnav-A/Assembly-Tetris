@@ -162,6 +162,14 @@ grid_state:
 main:
     # Initialize the game
 
+    # Initialize the MIDI system for instruments 0 and 25
+    li $a1, 0                  # duration
+    li $a2, 0                  # instrument
+    li $v0, 31                 # async sound
+    syscall
+    li $a2, 25                 # instrument
+    syscall
+
     # Print the grid
     li $t0, 0x181818       # set the color (outline) to black
     li $t1, 0x000000       # set the color (solid) to dark grey
@@ -479,6 +487,29 @@ game_loop:
     li $v0, 32
     li $a0, 1000
     syscall                    # delay game over by 1000 ms, to show collision
+
+    # sound effect for game over
+    li $a0, 60                 # pitch
+    li $a1, 250                # duration
+    li $a2, 0                  # instrument
+    li $a3, 80                 # volume
+    li $v0, 33                 # sync sound
+    syscall
+    li $a0, 56                 # pitch
+    syscall
+    li $a0, 52                 # pitch
+    syscall
+    li $a0, 48                 # pitch
+    syscall
+    li $a0, 44                 # pitch
+    syscall
+    li $a0, 40                 # pitch
+    syscall
+    li $a0, 36                 # pitch
+    syscall
+    li $a0, 32                 # pitch
+    syscall
+
     j game_over                # if 1, there is collision, go to game over
 
     check_game_over_end:
