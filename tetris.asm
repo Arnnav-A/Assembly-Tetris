@@ -154,6 +154,9 @@ grid_state:
     .byte 0: 240    # 20 by 12 grid
     .byte 1: 12     # bottom floor
 
+gravity_counter:
+    .word 0 # stores the gravity of the game
+
 ##############################################################################
 # Code
 ##############################################################################
@@ -315,6 +318,37 @@ game_loop:
 	li $a0, 10
     syscall                     # delay the game loop by 10 ms
 
+    # move down with gravity:
+    lw $t0, gravity_counter     # load the value of the gravity counter
+    addi $t0, $t0, 1            # increment the gravity counter
+    sw $t0, gravity_counter     # store the value of the gravity counter
+    ble $t0, 50, gravity_end    # if gravity counter is less than or equal to 50, go to gravity end
+    li $t0, 0                   # reset the gravity counter
+    sw $t0, gravity_counter     # store the value of the gravity counter
+
+    # erase the current piece
+    li $a0, 0                  # if 0, erase current
+    jal make_current
+
+    # move current down once
+    la $t0, current_piece      # load the address of the current piece
+    lw $t1, 8($t0)             # load the y-coordinate of the current piece
+    addi $t1, $t1, 8           # move the current piece down
+    sw $t1, 8($t0)             # update the y-coordinate of the current piece
+
+    # check for collision
+    jal handle_collision
+    beq $v0, 0, handle_end    # if 0, no collision, go to the end of the handle block
+
+    # if collision, move current piece up
+    la $t0, current_piece      # load the address of the current piece
+    lw $t1, 8($t0)             # load the y-coordinate of the current piece
+    addi $t1, $t1, -8          # move the current piece down
+    sw $t1, 8($t0)             # update the y-coordinate of the current piece
+    b update_grid              # proceed as if player dropped the piece
+
+    gravity_end:
+
 	# 1a. Check if key has been pressed
     lw $t0, ADDR_KBRD           # load the address of the keyboard
     lw $t1, 0($t0)              # load the first word of the keyboard
@@ -427,6 +461,8 @@ game_loop:
             li $a3, 80                 # volume
             li $v0, 31                 # async sound
             syscall
+
+            update_grid:
 
             # update the grid state
             jal freeze_current         # update grid state
