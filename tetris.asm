@@ -1196,12 +1196,12 @@ clear_row:
     mflo	$s0					# copy Lo to $s0
 
     addi $s0, $s0, 11           # set to last element of the row to be cleared
-    addi $s1, $s0, -12          # set to first element of the row above
+    addi $s1, $s0, -12          # set to last element of the row above
     add $s0, $s3, $s0           # align address to the row to be cleared
     add $s1, $s3, $s1           # align address to the row above
 
     move_state_down_loop:
-    beq $s0, $s3, move_state_down_loop_end  # end loop after moving down the top row
+    beq $s1, $s3, move_state_down_loop_end  # end loop after moving down the top row
     lb $s5, 0($s1)                          # copy the current state
     sb $s5, 0($s0)                          # paste the current state
     addi $s0, $s0, -1                       # move to the next state
