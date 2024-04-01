@@ -342,7 +342,7 @@ game_loop:
     lw $t0, gravity_counter     # load the value of the gravity counter
     addi $t0, $t0, 1            # increment the gravity counter
     sw $t0, gravity_counter     # store the value of the gravity counter
-    ble $t0, 50, gravity_end    # if gravity counter is less than or equal to 50, go to gravity end
+    ble $t0, 100, gravity_end    # if gravity counter is less than or equal to 50, go to gravity end
     li $t0, 0                   # reset the gravity counter
     sw $t0, gravity_counter     # store the value of the gravity counter
 
