@@ -293,6 +293,25 @@ border_h:
         j border_h                  # go back to the beginning of the border_x loop
 end_border_h:
 
+# Print the next block borders
+li $a3, 0xFFFFFF
+li $a0, 150
+li $a1, 80
+li $a2, 52
+jal draw_vertical
+li $a0, 150
+li $a1, 80
+li $a2, 44
+jal draw_horizontal
+li $a0, 192
+li $a1, 80
+li $a2, 52
+jal draw_vertical
+li $a0, 150
+li $a1, 130
+li $a2, 44
+jal draw_horizontal
+
 # set left and right wall collision in grid_state
 la $t0, grid_state                  # load the address of the grid_state, first left wall
 li $t2, 20                          # number of iterations, same as height of the walls
@@ -1444,8 +1463,8 @@ draw_next:
     li $s2, 0x000000            # set the colour (outline) as black
     li $s3, 0x000000            # set the colour (solid) as black
     end_erase_2:
-    li $s4, 98                  # store the initial y-coordinate
-    li $s5, 175                 # store the initial x-coordinate
+    li $s4, 90                  # store the initial y-coordinate
+    li $s5, 160                 # store the initial x-coordinate
     
     addi $s1, $s1, 4            # sets $s1 to the beginning of the piece's first x-coordinate
     
