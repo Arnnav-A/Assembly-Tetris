@@ -63,7 +63,7 @@
 
     4.  Bitmap Address: 0x10008000 (\$gp)
   
-    5.  Compatible with MARS and Saturn assemblers for MIPS Assebmly
+    5.  Compatible with MARS and Saturn assemblers for MIPS Assembly
 
 ## How to Play:
 
