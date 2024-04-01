@@ -1135,7 +1135,7 @@ clear_row:
     lw $s4, ADDR_DSPL               # load the address of the bitmap
     addi $s3, $s3, 160              # align address to left margin
     addi $s4, $s4, 160              # align address to left margin
-    li $s7, 10
+    li $s7, 80
     sll $s7, $s7, 10
     add $s3, $s3, $s7               # align address to top margin
     add $s4, $s4, $s7               # align address to top margin
