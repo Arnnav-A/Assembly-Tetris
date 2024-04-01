@@ -311,6 +311,7 @@ wall_collision_end:
 # draw the current piece as the starting block
 li $a0, 1           # if 1, draw current
 jal make_current
+jal draw_next
 
 game_loop:
 
@@ -463,6 +464,9 @@ game_loop:
             syscall
 
             update_grid:
+            
+            li $a0, 0
+            jal draw_next
 
             # update the grid state
             jal freeze_current         # update grid state
@@ -491,6 +495,8 @@ game_loop:
             sw $t1, 4($t0)             # set the x-coordinate of the current piece to 72
             li $t1, 80                 # set $t1 to 80
             sw $t1, 8($t0)             # set the y-coordinate of the current piece to 80
+            
+            jal draw_next
 
             b handle_end               # go to the end of the handle block
 
@@ -1404,6 +1410,106 @@ clear_grid:
 
 
 end_clear_grid:
+
+j end
+
+draw_next:
+    # Reading "inputs" from memory
+    la $s0, next_piece          # store the current piece
+    lw $s1, 0($s0)              # store the address of the next piece
+    beq $a0, 0, erase_2
+    lw $s2, 40($s1)             # set the colour (outline) as the colour of the next piece
+    lw $s3, 36($s1)             # set the colour (solid) as the colour of the current piece
+    j end_erase_2               # skip erase
+    erase_2:
+    li $s2, 0x000000            # set the colour (outline) as black
+    li $s3, 0x000000            # set the colour (solid) as black
+    end_erase_2:
+    li $s4, 98                  # store the initial y-coordinate
+    li $s5, 175                 # store the initial x-coordinate
+    
+    addi $s1, $s1, 4            # sets $s1 to the beginning of the piece's first x-coordinate
+    
+    # Print first block
+    lw $s6, 4($s1)
+    add $s6, $s6, $s4            # sets y-coordinate of the first block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the first block
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $ra, 0($sp)               # push the return address onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
+
+    # Print second block
+    lw $s6, 4($s1)
+    add $s6, $s6, $s4            # sets y-coordinate of the second block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the second block
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+
+    sw $ra, 0($sp)               # push the return address onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
+
+    # Print third block
+    lw $s6, 4($s1)
+    add $s6, $s6, $s4            # sets y-coordinate of the third block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the third block
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+
+    sw $ra, 0($sp)               # push the return address onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
+
+    # Print forth block
+    lw $s6, 4($s1)
+    add $s6, $s6, $s4            # sets y-coordinate of the forth block
+    lw $s7, 0($s1)
+    add $s7, $s7, $s5            # sets x-coordinate of the forth block
+    addi $s1, $s1, 8             # moves $s1 to the next x-coordinate
+
+    sw $ra, 0($sp)               # push the return address onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s2, 0($sp)               # push the color (outline) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s3, 0($sp)               # push the color (solid) onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s6, 0($sp)               # push the y-coordinate onto the stack
+    addi $sp, $sp, -4            # move the stack pointer one word
+    sw $s7, 0($sp)               # push the x-coordinate onto the stack
+    jal draw_block               # draw the current block of the grid
+    lw $ra, 0($sp)               # pop the return address from the stack
+
+    jr $ra                       # return to where the function was called
+
+end_draw_next:
 
 j end
 
