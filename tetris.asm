@@ -1203,6 +1203,24 @@ clear_row:
     sb $zero, 9($s3)
     sb $zero, 10($s3)
 
+    add $s6, $zero, $a0    # save a0 for return
+
+    # sound effect for completing a row (sync)
+    li $a0, 48                 # pitch
+    li $a1, 150                # duration
+    li $a2, 0                  # instrument
+    li $a3, 80                 # volume
+    li $v0, 33                 # sync sound
+    syscall
+    li $a0, 52                 # pitch
+    syscall
+    li $a0, 56                 # pitch
+    syscall
+    li $a0, 60                 # pitch
+    syscall
+
+    add $a0, $zero, $s6    # reset a0
+
 jr $ra
 
 end_clear_row:
