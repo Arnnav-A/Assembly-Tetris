@@ -556,7 +556,51 @@ game_loop:
 
     check_game_over_end:
 
-    # 4. Go back to the game loop
+    # 4. Check for complete rows, and clear them
+
+    # erase current piece
+    li $a0, 0                  # if 0, erase current
+    jal make_current
+
+    # check for complete rows
+    # call clear row
+
+    la $t0, grid_state          # load the address of the grid_state
+    li $a0, 0                   # set the current row to 0
+    li $t2, 0                   # set the number of filled blocks in the row to 0
+    li $t3, 0                   # set the current column to 0
+
+    check_complete_loop:
+
+    # check if row is complete
+    lb $t4, 0($t0)              # load the value of the current block
+    add $t2, $t2, $t4           # add the value of the current block to the number of filled blocks
+
+    bne $t3, 12, continue_check_complete_loop # if not at the end of the row, continue checking
+    li $t3, 0                   # reset the current column to 0
+    beq $t2, 12, call_clear_row # if the row is complete, clear the row
+    li $t2, 0                   # reset the number of filled blocks in the row to 0
+    addi $a0, $a0, 1            # increment the current row
+
+    j continue_check_complete_loop
+    call_clear_row:
+    jal clear_row
+    li $t2, 0                   # reset the number of filled blocks in the row to 0
+    addi $a0, $a0, 1            # increment the current row
+
+    continue_check_complete_loop:
+    addi $t3, $t3, 1            # increment the current column
+    addi $t0, $t0, 1            # move address to the next column
+
+    beq $a0, 20, check_complete_loop_end # if at the end of the grid, end the loop
+    j check_complete_loop
+    check_complete_loop_end:
+
+    # redraw current piece
+    li $a0, 1                  # if 1, draw current
+    jal make_current
+
+    # 5. Go back to the game loop
     b game_loop
 
 j end
@@ -1053,6 +1097,108 @@ freeze_current:
     jr $ra                      # return to where the function was called
 
 end_freeze_current:
+
+j end
+
+clear_row:
+    # clear_row(y-coordinate)
+    # Copies and moves down every row above the row to be cleared
+    # Also update grid state
+
+    # - $a0 stores the y-coordinate of the row to be cleared (0-19)
+
+    # - $s0 stores the y-coordinate of the current pixel being copied
+    # - $s1 stores the x-coordinate of the current pixel being copied
+    # - $s2 stores the y-coordinate of the current pixel being pasted
+    # - $s3 stores the address being copied from
+    # - $s4 stores the address being copied to
+    # - $s5 stores the value of the current pixel being copied
+
+    li $s1, 0                       # set the x-coordinate to 0
+    add $s0, $zero, $a0             # set the y-coordinate to the row to be cleared
+    sll $s0, $s0, 3                 # multiply the y-coordinate by 8, number of pixels in a block
+    addi $s0, $s0, -1               # set the y-coordinate to the last pixel of previous row
+    addi $s2, $s0, 8                # set the y-coordinate to the first pixel of the row to be cleared
+
+
+    copy_pixel_outer_loop:
+
+    # reset copy and pasting addresses
+    li $s1, 0                       # set the x-coordinate to 0
+    lw $s3, ADDR_DSPL               # load the address of the bitmap
+    lw $s4, ADDR_DSPL               # load the address of the bitmap
+    addi $s3, $s3, 160              # align address to left margin
+    addi $s4, $s4, 160              # align address to left margin
+    li $s7, 10
+    sll $s7, $s7, 10
+    add $s3, $s3, $s7               # align address to top margin
+    add $s4, $s4, $s7               # align address to top margin
+
+    add $s7, $s0, $zero
+    sll $s7, $s7, 10
+    add $s3, $s3, $s7               # align copy address
+
+    add $s7, $s2, $zero
+    sll $s7, $s7, 10
+    add $s4, $s4, $s7               # align paste address
+
+    copy_pixel_inner_loop:
+    beq $s1, 80, copy_pixel_inner_loop_end      # end loop after copying 80 pixels
+    lw $s5, 0($s3)                              # copy the current pixel
+    sw $s5, 0($s4)                              # paste the current pixel
+
+    addi $s1, $s1, 1                            # move to the next pixel counter
+    addi $s3, $s3, 4                            # move to the next pixel in the row to be copied
+    addi $s4, $s4, 4                            # move to the next pixel in the row to be pasted
+
+    j copy_pixel_inner_loop
+    copy_pixel_inner_loop_end:
+
+    beq $s0, 0, copy_pixel_outer_loop_end       # end loop after copying top row
+    addi $s0, $s0, -1                           # move to the next row to be copied
+    addi $s2, $s2, -1                           # move to the next row to be pasted
+    j copy_pixel_outer_loop
+    copy_pixel_outer_loop_end:
+
+    # move down the grid state
+
+    la $s3, grid_state          # store address of the grid_state
+    add $s0, $zero, $a0         # set the place being copied from
+    li $s4, 12                  # constant 12
+
+    mult	$s0, $s4			# $s0 * $s4 = Hi and Lo registers
+    mflo	$s0					# copy Lo to $s0
+
+    addi $s0, $s0, 11           # set to last element of the row to be cleared
+    addi $s1, $s0, -12          # set to first element of the row above
+    add $s0, $s3, $s0           # align address to the row to be cleared
+    add $s1, $s3, $s1           # align address to the row above
+
+    move_state_down_loop:
+    beq $s0, $s3, move_state_down_loop_end  # end loop after moving down the top row
+    lb $s5, 0($s1)                          # copy the current state
+    sb $s5, 0($s0)                          # paste the current state
+    addi $s0, $s0, -1                       # move to the next state
+    addi $s1, $s1, -1                       # move to the next state    
+
+    j move_state_down_loop
+    move_state_down_loop_end:
+
+    # set top row to 0
+    sb $zero, 1($s3)
+    sb $zero, 2($s3)
+    sb $zero, 3($s3)
+    sb $zero, 4($s3)
+    sb $zero, 5($s3)
+    sb $zero, 6($s3)
+    sb $zero, 7($s3)
+    sb $zero, 8($s3)
+    sb $zero, 9($s3)
+    sb $zero, 10($s3)
+
+jr $ra
+
+end_clear_row:
 
 j end
 
