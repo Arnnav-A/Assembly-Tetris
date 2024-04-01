@@ -475,10 +475,10 @@ game_loop:
             sw $t1, 8($t0)             # update the y-coordinate of the current piece
 
             # if moved down successfully, play sound effect
-            li $a0, 40                 # pitch
+            li $a0, 60                 # pitch
             li $a1, 250                # duration
             li $a2, 25                 # instrument
-            li $a3, 80                 # volume
+            li $a3, 127                 # volume
             li $v0, 31                 # async sound
             syscall
 
