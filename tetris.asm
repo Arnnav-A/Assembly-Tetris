@@ -1689,6 +1689,72 @@ li $a1, 112
 li $a2, 16
 jal draw_horizontal
 
+# Print R
+li $a0, 97
+li $a1, 165
+li $a2, 16
+jal draw_vertical
+li $a0, 97
+li $a1, 165
+li $a2, 8
+jal draw_horizontal
+
+# Draw E
+li $a0, 109
+li $a1, 165
+li $a2, 16
+jal draw_vertical
+li $a0, 109
+li $a1, 165
+li $a2, 8
+jal draw_horizontal
+li $a0, 109
+li $a1, 172
+li $a2, 8
+jal draw_horizontal
+li $a0, 109
+li $a1, 179
+li $a2, 8
+jal draw_horizontal
+
+# Draw T
+li $a0, 126
+li $a1, 165
+li $a2, 16
+jal draw_vertical
+li $a0, 121
+li $a1, 165
+li $a2, 12
+jal draw_horizontal
+
+# Draw R
+li $a0, 137
+li $a1, 165
+li $a2, 16
+jal draw_vertical
+li $a0, 137
+li $a1, 165
+li $a2, 8
+jal draw_horizontal
+
+# Draw Y
+li $a0, 149
+li $a1, 165
+li $a2, 8
+jal draw_vertical
+li $a0, 152
+li $a1, 173
+li $a2, 8
+jal draw_vertical
+li $a0, 45
+li $a1, 128
+li $a2, 16
+jal draw_horizontal
+li $a0, 155
+li $a1, 165
+li $a2, 8
+jal draw_vertical
+
 retry_loop:
 
     # delay the retry loop by 10 ms
