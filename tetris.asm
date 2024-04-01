@@ -146,7 +146,7 @@ current_piece:
     .word S_piece_horizontal # stores the address of the current piece
     .word 72, 80 # stores the coordinates of the top left corner of the current piece
 next_piece:
-    .word T_piece_default # stores the address of the next piece
+    .word O_piece # stores the address of the next piece
 
 # Array of the grid (including the walls), 0 is empty, 1 is filled
 # for collision detection
@@ -496,6 +496,7 @@ game_loop:
             li $t1, 80                 # set $t1 to 80
             sw $t1, 8($t0)             # set the y-coordinate of the current piece to 80
             
+            li $a0, 1
             jal draw_next
 
             b handle_end               # go to the end of the handle block
