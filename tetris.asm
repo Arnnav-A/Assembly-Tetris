@@ -495,7 +495,7 @@ game_loop:
             sw $t1, 4($t0)             # set the x-coordinate of the current piece to 72
             li $t1, 80                 # set $t1 to 80
             sw $t1, 8($t0)             # set the y-coordinate of the current piece to 80
-            
+
             li $a0, 1
             jal draw_next
 
@@ -1670,6 +1670,11 @@ end_retry:
 jal clear_grid
 li $a0, 0
 jal clear
+la $t0, current_piece      # load the address of the current piece
+li $t1, 72                 # set $t1 to 72
+sw $t1, 4($t0)             # set the x-coordinate of the current piece to 72
+li $t1, 80                 # set $t1 to 80
+sw $t1, 8($t0)             # set the y-coordinate of the current piece to 80
 b main
 
 end_game_over:
